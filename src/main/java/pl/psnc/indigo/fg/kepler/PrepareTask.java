@@ -11,6 +11,7 @@ import ptolemy.actor.TypedIOPort;
 import ptolemy.kernel.util.SingletonAttribute;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.BaseAPI;
+import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 
 public class PrepareTask extends LimitedFiringSource {
 
@@ -60,10 +61,14 @@ public class PrepareTask extends LimitedFiringSource {
       			descriptionString = descriptionToken.stringValue();
   		}
 
-		TasksAPI restAPI = new TasksAPI(BaseAPI.DEFAULT_ADDRESS);
+		TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
 	
-		String result = restAPI.prepareTask( userString, applicationString, descriptionString );
+		Task result = restAPI.prepareTask( userString, applicationString, descriptionString );
 		
-		output.send(0, new StringToken( result ));
+                try {
+                    output.send(0, new StringToken( result.getId() ));
+                } catch(Exception ex) {
+                    throw new IllegalActionException("There was an issue while parsing JSON output - there is no 'id' field or it is incorrec");
+                }
 	}
 }
