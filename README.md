@@ -1,6 +1,19 @@
 # indigokepler
 This project contains actors for Indigo project
 
+You need to build indigoclient before you can proceed with building indigokepler project.
+
+Make sure to take a look at:
+
+https://github.com/mkopsnc/indigoclient
+
+After you have built and published jars from indigoclient, you can build indigokepler
+
+	mvn initialize # this command will install ptolemy-lepler-2.5.jar in your local repository
+	mvn compile
+
+
+
 # ptolemy license
 
 Below is the copyright agreement for the Ptolemy II system.
