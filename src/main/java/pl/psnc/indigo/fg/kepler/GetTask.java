@@ -13,13 +13,13 @@ import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.BaseAPI;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 
-public class PrepareTask extends LimitedFiringSource {
+public class GetTask extends LimitedFiringSource {
 
 	public TypedIOPort userPort;
-    	public TypedIOPort applicationPort;
-    	public TypedIOPort descriptionPort;
+    	public TypedIOPort idPort;
+	public TypedIOPort statusPort;
 
-	public PrepareTask(CompositeEntity container, String name)
+	public GetTask(CompositeEntity container, String name)
 			throws NameDuplicationException, IllegalActionException {
 		super(container, name);
 
@@ -27,13 +27,13 @@ public class PrepareTask extends LimitedFiringSource {
   		new SingletonAttribute(userPort, "_showName");
   		userPort.setTypeEquals(BaseType.STRING);
 
-		applicationPort = new TypedIOPort(this,"application",true,false);
-  		new SingletonAttribute(applicationPort, "_showName");
-  		applicationPort.setTypeEquals(BaseType.STRING);
+		idPort = new TypedIOPort(this,"id",true,false);
+  		new SingletonAttribute(idPort, "_showName");
+  		idPort.setTypeEquals(BaseType.STRING);
 
-		descriptionPort = new TypedIOPort(this,"description",true,false);
-  		new SingletonAttribute(descriptionPort, "_showName");
-  		descriptionPort.setTypeEquals(BaseType.STRING);
+		statusPort = new TypedIOPort(this, "status", false, true);
+		new SingletonAttribute(statusPort, "_showName");
+		statusPort.setTypeEquals(BaseType.STRING);
 
 		output.setTypeEquals(BaseType.STRING);
 	}
@@ -43,30 +43,26 @@ public class PrepareTask extends LimitedFiringSource {
 		super.fire();
 
 		String userString = null;
-		String applicationString = null;
-		String descriptionString = null;
+		String idString = null;
 
 		if ( userPort.getWidth() > 0 ) {
       			StringToken userToken = (StringToken) userPort.get(0);
       			userString = userToken.stringValue();
   		}
 
-		if ( applicationPort.getWidth() > 0 ) {
-      			StringToken applicationToken = (StringToken) applicationPort.get(0);
-      			applicationString = applicationToken.stringValue();
-  		}
-
-		if ( descriptionPort.getWidth() > 0 ) {
-      			StringToken descriptionToken = (StringToken) descriptionPort.get(0);
-      			descriptionString = descriptionToken.stringValue();
+		if ( idPort.getWidth() > 0 ) {
+      			StringToken idToken = (StringToken) idPort.get(0);
+      			idString = idToken.stringValue();
   		}
 
 		TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
+
 		try {	
-		    Task result = restAPI.prepareTask( userString, applicationString, descriptionString );
+		    Task result = restAPI.getTask( userString, idString );
                     output.send(0, new StringToken( result.getId() ));
+		    statusPort.send(0, new StringToken( result.getStatus() ));
                 } catch(Exception ex) {
-                    throw new IllegalActionException("There was an issue while parsing JSON output - there is no 'id' field or it is incorrec");
+                    throw new IllegalActionException("There was an issue during task submission");
                 }
 	}
 }
