@@ -54,7 +54,10 @@ public class SubmitTask extends LimitedFiringSource {
 		TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
 
 		try {	
-		    Upload result = restAPI.submitTask( userString, idString );
+                    Task prepareToSubmit = new Task();
+                    prepareToSubmit.setUser(userString);
+                    prepareToSubmit.setId(idString);
+		    Upload result = restAPI.submitTask( prepareToSubmit );
                     output.send(0, new StringToken( result.getTask() ));
                 } catch(Exception ex) {
                     throw new IllegalActionException("There was an issue during task submission");

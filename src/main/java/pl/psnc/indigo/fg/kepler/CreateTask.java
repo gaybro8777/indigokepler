@@ -12,14 +12,15 @@ import ptolemy.kernel.util.SingletonAttribute;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.BaseAPI;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
+import pl.psnc.indigo.fg.api.restful.jaxb.Upload;
 
-public class PrepareTask extends LimitedFiringSource {
+public class CreateTask extends LimitedFiringSource {
 
 	public TypedIOPort userPort;
     	public TypedIOPort applicationPort;
     	public TypedIOPort descriptionPort;
 
-	public PrepareTask(CompositeEntity container, String name)
+	public CreateTask(CompositeEntity container, String name)
 			throws NameDuplicationException, IllegalActionException {
 		super(container, name);
 
@@ -62,9 +63,13 @@ public class PrepareTask extends LimitedFiringSource {
   		}
 
 		TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
-		try {	
-		    Task result = restAPI.prepareTask( userString, applicationString, descriptionString );
-                    output.send(0, new StringToken( result.getId() ));
+		try {
+                    Task taskToCreate = new Task();
+                    taskToCreate.setUser(userString);
+                    taskToCreate.setDescription(descriptionString);
+                    taskToCreate.setApplication(applicationString);
+                    Task result = restAPI.createTask(taskToCreate);
+                    output.send(0, new StringToken( result.getId()));
                 } catch(Exception ex) {
                     throw new IllegalActionException("There was an issue while parsing JSON output - there is no 'id' field or it is incorrec");
                 }

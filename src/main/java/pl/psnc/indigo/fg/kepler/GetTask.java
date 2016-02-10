@@ -57,8 +57,11 @@ public class GetTask extends LimitedFiringSource {
 
 		TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
 
-		try {	
-		    Task result = restAPI.getTask( userString, idString );
+		try {
+                    Task taskToGet = new Task();
+                    taskToGet.setUser(userString);
+                    taskToGet.setId(idString);
+		    Task result = restAPI.getTask( taskToGet );
                     output.send(0, new StringToken( result.getId() ));
 		    statusPort.send(0, new StringToken( result.getStatus() ));
                 } catch(Exception ex) {
