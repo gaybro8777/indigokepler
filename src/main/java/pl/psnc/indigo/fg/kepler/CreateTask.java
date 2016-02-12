@@ -11,14 +11,17 @@ import ptolemy.actor.TypedIOPort;
 import ptolemy.kernel.util.SingletonAttribute;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.BaseAPI;
+import pl.psnc.indigo.fg.api.restful.jaxb.Link;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 import pl.psnc.indigo.fg.api.restful.jaxb.Upload;
+import ptolemy.data.Token;
 
 public class CreateTask extends LimitedFiringSource {
 
 	public TypedIOPort userPort;
     	public TypedIOPort applicationPort;
     	public TypedIOPort descriptionPort;
+        public TypedIOPort inputLoctaion;
 
 	public CreateTask(CompositeEntity container, String name)
 			throws NameDuplicationException, IllegalActionException {
@@ -35,6 +38,10 @@ public class CreateTask extends LimitedFiringSource {
 		descriptionPort = new TypedIOPort(this,"description",true,false);
   		new SingletonAttribute(descriptionPort, "_showName");
   		descriptionPort.setTypeEquals(BaseType.STRING);
+                
+                inputLoctaion = new TypedIOPort(this,"inputs",false,true);
+  		new SingletonAttribute(inputLoctaion, "_showName");
+  		inputLoctaion.setTypeEquals(BaseType.STRING);
 
 		output.setTypeEquals(BaseType.STRING);
 	}
@@ -69,6 +76,17 @@ public class CreateTask extends LimitedFiringSource {
                     taskToCreate.setDescription(descriptionString);
                     taskToCreate.setApplication(applicationString);
                     Task result = restAPI.createTask(taskToCreate);
+                    
+                    String linksURL = "";
+                    
+                    // We have to make sure there are inputs required by the application
+                    for(Link l : result.get_links()) {
+                        if(l.getRel().equals("input")) {
+                            linksURL = l.getHref();
+                        }
+                    }
+                    
+                    inputLoctaion.send(0, new StringToken( linksURL));
                     output.send(0, new StringToken( result.getId()));
                 } catch(Exception ex) {
                     throw new IllegalActionException("There was an issue while parsing JSON output - there is no 'id' field or it is incorrec");
