@@ -1,5 +1,6 @@
 package pl.psnc.indigo.fg.kepler;
 
+import java.util.logging.Logger;
 import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.StringToken;
 import ptolemy.data.expr.Parameter;
@@ -14,6 +15,8 @@ import pl.psnc.indigo.fg.api.restful.BaseAPI;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 
 public class GetTask extends LimitedFiringSource {
+    
+        private final static Logger LOGGER = Logger.getLogger(GetTask.class.getName());
 
 	public TypedIOPort userPort;
     	public TypedIOPort idPort;
@@ -65,7 +68,7 @@ public class GetTask extends LimitedFiringSource {
                     output.send(0, new StringToken( result.getId() ));
 		    statusPort.send(0, new StringToken( result.getStatus() ));
                 } catch(Exception ex) {
-                    throw new IllegalActionException("There was an issue during task submission");
+                    throw new IllegalActionException(this, ex, "There was an issue while checking task status");
                 }
 	}
 }
