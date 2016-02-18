@@ -41,8 +41,7 @@ To get indigokepler working in Kepler 2.5 you will have to:
 2. copy all sources from src/main/java into module indigo/src
 
 3. update modules.txt file and add indigo module into list of loaded modules
-
-
+ 
     kepler/build-area
     |
     `-- modules.txt
