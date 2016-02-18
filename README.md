@@ -12,7 +12,46 @@ After you have built and published jars from indigoclient, you can build indigok
 	mvn initialize # this command will install ptolemy-lepler-2.5.jar in your local repository
 	mvn compile
 
+Kepler will require all the libraries that are used for building and executing indigokepler based actors. You can export all dependencies following way
 
+	mkdir lib
+	mvn dependency:copy-dependencies -DoutputDirectory=lib
+
+Then, create indigo module inside Kepler 2.5. It should have following structure
+
+    indigo/
+    |-- lib
+    |   |-- exe
+    |   `-- jar
+    |-- lib64
+    |-- module-info
+    |-- resources
+    |   `-- system.properties
+    `-- src
+        `-- pl
+            `-- psnc
+                `-- indigo
+                    `-- fg
+                        `-- kepler	
+
+To get indigokepler working in Kepler 2.5 you will have to:
+
+1. copy all jars from indigokepler/lib into module indigo/lib/jar
+
+2. copy all sources from src/main/java into module indigo/src
+
+3. update modules.txt file and add indigo module into list of loaded modules
+
+
+    kepler/build-area
+    |
+    `-- modules.txt
+    
+4. You can now compile and run Kepler 2.5
+
+    cd kepler/build-area
+    ant compile
+    ant run
 
 # ptolemy license
 
