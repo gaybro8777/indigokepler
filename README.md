@@ -36,21 +36,22 @@ Then, create indigo module inside Kepler 2.5. It should have following structure
 
 To get indigokepler working in Kepler 2.5 you will have to:
 
-1. copy all jars from indigokepler/lib into module indigo/lib/jar
+* copy all jars from indigokepler/lib into module indigo/lib/jar
 
-2. copy all sources from src/main/java into module indigo/src
+* copy all sources from src/main/java into module indigo/src
 
-3. update modules.txt file and add indigo module into list of loaded modules
- 
-    kepler/build-area
-    |
-    `-- modules.txt
+* update modules.txt file and add indigo module into list of loaded modules
+
+
+        kepler/build-area
+        | 
+        `-- modules.txt
     
-4. You can now compile and run Kepler 2.5
+* You can now compile and run Kepler 2.5
 
-    cd kepler/build-area
-    ant compile
-    ant run
+        cd kepler/build-area
+        ant compile
+        ant run
 
 # ptolemy license
 
