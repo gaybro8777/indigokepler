@@ -15,60 +15,60 @@ import pl.psnc.indigo.fg.api.restful.BaseAPI;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 
 public class GetTask extends LimitedFiringSource {
-    
-        private final static Logger LOGGER = Logger.getLogger(GetTask.class.getName());
 
-	public TypedIOPort userPort;
-    	public TypedIOPort idPort;
-	public TypedIOPort statusPort;
+  private final static Logger LOGGER = Logger.getLogger(GetTask.class.getName());
 
-	public GetTask(CompositeEntity container, String name)
-			throws NameDuplicationException, IllegalActionException {
-		super(container, name);
+  public TypedIOPort userPort;
+  public TypedIOPort idPort;
+  public TypedIOPort statusPort;
 
-		userPort = new TypedIOPort(this,"user",true,false);
-  		new SingletonAttribute(userPort, "_showName");
-  		userPort.setTypeEquals(BaseType.STRING);
+  public GetTask(CompositeEntity container, String name)
+    throws NameDuplicationException, IllegalActionException {
+    super(container, name);
 
-		idPort = new TypedIOPort(this,"id",true,false);
-  		new SingletonAttribute(idPort, "_showName");
-  		idPort.setTypeEquals(BaseType.STRING);
+    userPort = new TypedIOPort(this, "user", true, false);
+    new SingletonAttribute(userPort, "_showName");
+    userPort.setTypeEquals(BaseType.STRING);
 
-		statusPort = new TypedIOPort(this, "status", false, true);
-		new SingletonAttribute(statusPort, "_showName");
-		statusPort.setTypeEquals(BaseType.STRING);
+    idPort = new TypedIOPort(this, "id", true, false);
+    new SingletonAttribute(idPort, "_showName");
+    idPort.setTypeEquals(BaseType.STRING);
 
-		output.setTypeEquals(BaseType.STRING);
-	}
+    statusPort = new TypedIOPort(this, "status", false, true);
+    new SingletonAttribute(statusPort, "_showName");
+    statusPort.setTypeEquals(BaseType.STRING);
 
-	@Override
-	public void fire() throws IllegalActionException {
-		super.fire();
+    output.setTypeEquals(BaseType.STRING);
+  }
 
-		String userString = null;
-		String idString = null;
+  @Override
+  public void fire() throws IllegalActionException {
+    super.fire();
 
-		if ( userPort.getWidth() > 0 ) {
-      			StringToken userToken = (StringToken) userPort.get(0);
-      			userString = userToken.stringValue();
-  		}
+    String userString = null;
+    String idString = null;
 
-		if ( idPort.getWidth() > 0 ) {
-      			StringToken idToken = (StringToken) idPort.get(0);
-      			idString = idToken.stringValue();
-  		}
+    if (userPort.getWidth() > 0) {
+      StringToken userToken = (StringToken) userPort.get(0);
+      userString = userToken.stringValue();
+    }
 
-		TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
+    if (idPort.getWidth() > 0) {
+      StringToken idToken = (StringToken) idPort.get(0);
+      idString = idToken.stringValue();
+    }
 
-		try {
-                    Task taskToGet = new Task();
-                    taskToGet.setUser(userString);
-                    taskToGet.setId(idString);
-		    Task result = restAPI.getTask( taskToGet );
-                    output.send(0, new StringToken( result.getId() ));
-		    statusPort.send(0, new StringToken( result.getStatus() ));
-                } catch(Exception ex) {
-                    throw new IllegalActionException(this, ex, "There was an issue while checking task status");
-                }
-	}
+    TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
+
+    try {
+      Task taskToGet = new Task();
+      taskToGet.setUser(userString);
+      taskToGet.setId(idString);
+      Task result = restAPI.getTask(taskToGet);
+      output.send(0, new StringToken(result.getId()));
+      statusPort.send(0, new StringToken(result.getStatus()));
+    } catch (Exception ex) {
+      throw new IllegalActionException(this, ex, "There was an issue while checking task status");
+    }
+  }
 }

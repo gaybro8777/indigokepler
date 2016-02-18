@@ -10,18 +10,18 @@ import ptolemy.kernel.util.NameDuplicationException;
 
 public class GetRoot extends LimitedFiringSource {
 
-        public GetRoot(CompositeEntity container, String name)
-                        throws NameDuplicationException, IllegalActionException {
-                super(container, name);
-                output.setTypeEquals(BaseType.STRING);
-        }
+  public GetRoot(CompositeEntity container, String name)
+    throws NameDuplicationException, IllegalActionException {
+    super(container, name);
+    output.setTypeEquals(BaseType.STRING);
+  }
 
-        @Override
-        public void fire() throws IllegalActionException {
-                super.fire();
-		
-		String result = "Output";
+  @Override
+  public void fire() throws IllegalActionException {
+    super.fire();
 
-                output.send(0, new StringToken(result));
-        }
+    String result = "Output";
+
+    output.send(0, new StringToken(result));
+  }
 }

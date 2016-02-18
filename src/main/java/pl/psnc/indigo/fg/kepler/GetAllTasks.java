@@ -17,50 +17,50 @@ import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 
 public class GetAllTasks extends LimitedFiringSource {
 
-	public TypedIOPort userPort;
-    	
-	public GetAllTasks(CompositeEntity container, String name)
-			throws NameDuplicationException, IllegalActionException {
-		super(container, name);
+  public TypedIOPort userPort;
 
-		userPort = new TypedIOPort(this,"user",true,false);
-  		new SingletonAttribute(userPort, "_showName");
-  		userPort.setTypeEquals(BaseType.STRING);
+  public GetAllTasks(CompositeEntity container, String name)
+    throws NameDuplicationException, IllegalActionException {
+    super(container, name);
 
-		output.setTypeEquals(BaseType.STRING);
-	}
+    userPort = new TypedIOPort(this, "user", true, false);
+    new SingletonAttribute(userPort, "_showName");
+    userPort.setTypeEquals(BaseType.STRING);
 
-	@Override
-	public void fire() throws IllegalActionException {
-		super.fire();
+    output.setTypeEquals(BaseType.STRING);
+  }
 
-		String userString = null;
-		
-		if ( userPort.getWidth() > 0 ) {
-      			StringToken userToken = (StringToken) userPort.get(0);
-      			userString = userToken.stringValue();
-  		}
+  @Override
+  public void fire() throws IllegalActionException {
+    super.fire();
 
-		TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
+    String userString = null;
 
-		try {
-                    Task taskToGet = new Task();
-                    taskToGet.setUser(userString);
-		    Task [] result = restAPI.getAllTasks();
-                    
-                    JSONArray array = new JSONArray();                    
-                    
-                    for( Task task : result) {
-                        JSONObject object = new JSONObject();
-                        object.put(task.getId(), task.getStatus());
-                        array.put(object);
-                    }
-                    
-                    String jsonString = array.toString();
-                    
-                    output.send(0, new StringToken( jsonString ));
-                } catch(Exception ex) {
-                    throw new IllegalActionException("There was an issue during task submission");
-                }
-	}
+    if (userPort.getWidth() > 0) {
+      StringToken userToken = (StringToken) userPort.get(0);
+      userString = userToken.stringValue();
+    }
+
+    TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
+
+    try {
+      Task taskToGet = new Task();
+      taskToGet.setUser(userString);
+      Task[] result = restAPI.getAllTasks();
+
+      JSONArray array = new JSONArray();
+
+      for (Task task : result) {
+        JSONObject object = new JSONObject();
+        object.put(task.getId(), task.getStatus());
+        array.put(object);
+      }
+
+      String jsonString = array.toString();
+
+      output.send(0, new StringToken(jsonString));
+    } catch (Exception ex) {
+      throw new IllegalActionException("There was an issue during task submission");
+    }
+  }
 }
