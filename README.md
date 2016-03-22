@@ -1,5 +1,5 @@
 # indigokepler
-This project contains actors for Indigo project
+Thi contains actors for Indigo project
 
 You need to build indigoclient before you can proceed with building indigokepler project.
 
@@ -9,39 +9,34 @@ https://github.com/mkopsnc/indigoclient
 
 After you have built and published jars from indigoclient, you can build indigokepler
 
-	mvn initialize # this command will install ptolemy-lepler-2.5.jar in your local repository
-	mvn compile
+	mvn initialize  # this command will install ptolemy-lepler-2.5.jar in your local repository
+	mvn compile     # this command will build Kepler actors. Before proceeding, make sure you have build indigoclient (https://github.com/indigo-dc/indigoclient)
 
 Kepler will require all the libraries that are used for building and executing indigokepler based actors. You can export all dependencies following way
 
-	mkdir lib
-	mvn dependency:copy-dependencies -DoutputDirectory=lib
+	mvn process-resources  # this command will create module directory for indigo and will copy actors there
+	mvn dependency:copy-dependencies -DoutputDirectory=target/indigo/lib/jar -DexcludeArtifactIds=ptolemy # installs all dependencies apart ptolemy
 
-Then, create indigo module inside Kepler 2.5. It should have following structure
+After building indigo module, directory structure should have following layout
 
     indigo/
     |-- lib
-    |   |-- exe
-    |   `-- jar
-    |-- lib64
-    |-- module-info
+    |   |-- exe/
+    |   `-- jar/
+    |-- lib64/
+    |-- module-info/
     |-- resources
-    |   `-- system.properties
+    |   `-- system.properties/
     `-- src
         `-- pl
             `-- psnc
                 `-- indigo
                     `-- fg
-                        `-- kepler	
+                        `-- kepler/
 
-To get indigokepler working in Kepler 2.5 you will have to:
+Copy whole directory into $KEPLER/ where $KEPLER points to your Kepler installation
 
-* copy all jars from indigokepler/lib into module indigo/lib/jar
-
-* copy all sources from src/main/java into module indigo/src
-
-* update modules.txt file and add indigo module into list of loaded modules
-
+Then, make sure to add "indigo" module into (simply add name of module into list of other modules) 
 
         kepler/build-area
         | 
