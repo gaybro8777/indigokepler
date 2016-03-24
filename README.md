@@ -14,6 +14,7 @@ After you have built and published jars from indigoclient, you can build indigok
 
 Kepler will require all the libraries that are used for building and executing indigokepler based actors. You can export all dependencies following way
 
+	mvn package
 	mvn process-resources  # this command will create module directory for indigo and will copy actors there
 	mvn dependency:copy-dependencies -DoutputDirectory=target/indigo/lib/jar -DexcludeArtifactIds=ptolemy # installs all dependencies apart ptolemy
 

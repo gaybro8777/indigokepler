@@ -82,12 +82,14 @@
                 <mkdir dir="${basedir}/target/indigo/lib/jar"/>
                 <mkdir dir="${basedir}/target/indigo/lib64"/>
                 <mkdir dir="${basedir}/target/indigo/module-info"/>
+		<mkdir dir="${basedir}/target/indigo/target"/>
+		<copy file="${basedir}/target/indigo-fg-actors-1.0-SNAPSHOT.jar" tofile="${basedir}/target/indigo/target/indigo.jar" />
               </tasks>
             </configuration>
           </execution>
         </executions>
       </plugin>
-    </plugins>
+   </plugins>
   </build>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
