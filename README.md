@@ -5,17 +5,12 @@ You need to build indigoclient before you can proceed with building indigokepler
 
 Make sure to take a look at:
 
-https://github.com/mkopsnc/indigoclient
+https://github.com/indigo-dc/indigoclient
 
 After you have built and published jars from indigoclient, you can build indigokepler
 
 	mvn initialize  # this command will install ptolemy-lepler-2.5.jar in your local repository
-	mvn compile     # this command will build Kepler actors. Before proceeding, make sure you have build indigoclient (https://github.com/indigo-dc/indigoclient)
-
-Kepler will require all the libraries that are used for building and executing indigokepler based actors. You can export all dependencies following way
-
-	mvn package
-	mvn process-resources  # this command will create module directory for indigo and will copy actors there
+	mvn install     # this command will build Kepler actors. Before proceeding, make sure you have build indigoclient (https://github.com/indigo-dc/indigoclient)
 	mvn dependency:copy-dependencies -DoutputDirectory=target/indigo/lib/jar -DexcludeArtifactIds=ptolemy # installs all dependencies apart ptolemy
 
 After building indigo module, directory structure should have following layout
