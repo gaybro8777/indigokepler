@@ -16,6 +16,7 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
+import java.net.URISyntaxException;
 import java.util.List;
 
 public class GetAllTasks extends LimitedFiringSource {
@@ -62,6 +63,8 @@ public class GetAllTasks extends LimitedFiringSource {
         } catch (FutureGatewayException e) {
             throw new IllegalActionException(this, e, "Failed to get all tasks");
         } catch (JSONException e) {
+            throw new IllegalActionException(this, e, "Failed to get all tasks");
+        } catch (URISyntaxException e) {
             throw new IllegalActionException(this, e, "Failed to get all tasks");
         }
 

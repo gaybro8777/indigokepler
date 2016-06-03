@@ -17,6 +17,7 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,6 +135,8 @@ public class CreateTask extends LimitedFiringSource {
             TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
             result = restAPI.createTask(taskToCreate);
         } catch (FutureGatewayException e) {
+            throw new IllegalActionException(this, e, "Failed to create task");
+        } catch (URISyntaxException e) {
             throw new IllegalActionException(this, e, "Failed to create task");
         }
 

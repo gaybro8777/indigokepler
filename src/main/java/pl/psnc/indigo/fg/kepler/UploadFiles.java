@@ -16,6 +16,7 @@ import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 public class UploadFiles extends LimitedFiringSource {
@@ -85,6 +86,8 @@ public class UploadFiles extends LimitedFiringSource {
                 output.send(0, new StringToken(result.getTask()));
             }
         } catch (FutureGatewayException e) {
+            throw new IllegalActionException(this, e, "Failed to upload files");
+        } catch (URISyntaxException e) {
             throw new IllegalActionException(this, e, "Failed to upload files");
         }
     }

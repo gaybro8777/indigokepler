@@ -17,6 +17,7 @@ import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 public class DownloadFiles extends LimitedFiringSource {
@@ -68,6 +69,8 @@ public class DownloadFiles extends LimitedFiringSource {
                 restAPI.downloadOutputFile(outputFilesArray.get(i), localFolderString);
             }
         } catch (FutureGatewayException e) {
+            throw new IllegalActionException(this, e, "Failed to download files");
+        } catch (URISyntaxException e) {
             throw new IllegalActionException(this, e, "Failed to download files");
         }
 

@@ -16,6 +16,7 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -72,6 +73,8 @@ public class GetOutputsList extends LimitedFiringSource {
             TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
             files = restAPI.getOutputsForTask(taskToGet);
         } catch (FutureGatewayException e) {
+            throw new IllegalActionException(this, e, "Failed to get output list");
+        } catch (URISyntaxException e) {
             throw new IllegalActionException(this, e, "Failed to get output list");
         }
 

@@ -13,6 +13,8 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
+import java.net.URISyntaxException;
+
 public class GetTask extends LimitedFiringSource {
     public TypedIOPort userPort;
     public TypedIOPort idPort;
@@ -63,6 +65,8 @@ public class GetTask extends LimitedFiringSource {
             TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
             result = restAPI.getTask(taskToGet);
         } catch (FutureGatewayException e) {
+            throw new IllegalActionException(this, e, "Failed to get task");
+        } catch (URISyntaxException e) {
             throw new IllegalActionException(this, e, "Failed to get task");
         }
 
