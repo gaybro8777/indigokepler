@@ -7,9 +7,9 @@ import pl.psnc.indigo.fg.api.restful.jaxb.InputFile;
 import pl.psnc.indigo.fg.api.restful.jaxb.Link;
 import pl.psnc.indigo.fg.api.restful.jaxb.OutputFile;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
+import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.actor.lib.LimitedFiringSource;
-import ptolemy.data.ArrayToken;
 import ptolemy.data.StringToken;
 import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
@@ -69,86 +69,51 @@ public class CreateTask extends LimitedFiringSource {
     public void fire() throws IllegalActionException {
         super.fire();
 
-        String userString = null;
-        String applicationString = null;
-        String descriptionString = null;
+        String user = PortHelper.readString(userPort);
+        String application = PortHelper.readString(applicationPort);
+        String description = PortHelper.readString(descriptionPort);
+        List<String> arguments = PortHelper.readStringArray(argumentsPort);
+        List<String> inputFileNames = PortHelper.readStringArray(inputFilesPort);
+        List<String> outputFileNames = PortHelper.readStringArray(outputFilesPort);
 
-        if (userPort.getWidth() > 0) {
-            StringToken userToken = (StringToken) userPort.get(0);
-            userString = userToken.stringValue();
+        List<InputFile> inputFiles = new ArrayList<>();
+        List<OutputFile> outputFiles = new ArrayList<>();
+
+        for (String fileName : inputFileNames) {
+            InputFile inputFile = new InputFile();
+            inputFile.setName(fileName);
+            inputFiles.add(inputFile);
+        }
+        for (String fileName : outputFileNames) {
+            OutputFile outputFile = new OutputFile();
+            outputFile.setName(fileName);
+            outputFiles.add(outputFile);
         }
 
-        if (applicationPort.getWidth() > 0) {
-            StringToken applicationToken = (StringToken) applicationPort.get(0);
-            applicationString = applicationToken.stringValue();
-        }
+        Task task = new Task();
+        task.setUser(user);
+        task.setDescription(description);
+        task.setApplication(application);
+        task.setArguments(arguments);
+        task.setInputFiles(inputFiles);
+        task.setOutputFiles(outputFiles);
 
-        if (descriptionPort.getWidth() > 0) {
-            StringToken descriptionToken = (StringToken) descriptionPort.get(0);
-            descriptionString = descriptionToken.stringValue();
-        }
-
-        List<String> argumentsArray = new ArrayList();
-
-        if (argumentsPort.getWidth() > 0) {
-            ArrayToken argumentsToken = (ArrayToken) argumentsPort.get(0);
-            for (int i = 0; i < argumentsToken.length(); i++) {
-                StringToken arrayElement = (StringToken) argumentsToken.getElement(i);
-                argumentsArray.add(arrayElement.stringValue());
-            }
-        }
-
-        List<InputFile> inputFilesArray = new ArrayList();
-
-        if (inputFilesPort.getWidth() > 0) {
-            ArrayToken inputFilesToken = (ArrayToken) inputFilesPort.get(0);
-            for (int i = 0; i < inputFilesToken.length(); i++) {
-                StringToken arrayElement = (StringToken) inputFilesToken.getElement(i);
-                InputFile _tmpFile = new InputFile();
-                _tmpFile.setName(arrayElement.stringValue());
-                inputFilesArray.add(_tmpFile);
-            }
-        }
-
-        List<OutputFile> outputFilesArray = new ArrayList();
-
-        if (outputFilesPort.getWidth() > 0) {
-            ArrayToken outputFilesToken = (ArrayToken) outputFilesPort.get(0);
-            for (int i = 0; i < outputFilesToken.length(); i++) {
-                StringToken arrayElement = (StringToken) outputFilesToken.getElement(i);
-                OutputFile _tmpFile = new OutputFile();
-                _tmpFile.setName(arrayElement.stringValue());
-                outputFilesArray.add(_tmpFile);
-            }
-        }
-
-        Task taskToCreate = new Task();
-        taskToCreate.setUser(userString);
-        taskToCreate.setDescription(descriptionString);
-        taskToCreate.setApplication(applicationString);
-        taskToCreate.setArguments(argumentsArray);
-        taskToCreate.setInputFiles(inputFilesArray);
-        taskToCreate.setOutputFiles(outputFilesArray);
-
-        Task result;
         try {
-            TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
-            result = restAPI.createTask(taskToCreate);
-        } catch (FutureGatewayException e) {
-            throw new IllegalActionException(this, e, "Failed to create task");
-        } catch (URISyntaxException e) {
-            throw new IllegalActionException(this, e, "Failed to create task");
-        }
+            TasksAPI api = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
+            task = api.createTask(task);
 
-        // We have to make sure there are inputs required by the application
-        String linksURL = "";
-        for (Link l : result.getLinks()) {
-            if (l.getRel().equals("input")) {
-                linksURL = l.getHref();
+            // We have to make sure there are inputs required by the application
+            String linksURL = "";
+            for (Link l : task.getLinks()) {
+                if (l.getRel().equals("input")) {
+                    linksURL = l.getHref();
+                }
             }
-        }
 
-        inputLoctaion.send(0, new StringToken(linksURL));
-        output.send(0, new StringToken(result.getId()));
+            inputLoctaion.send(0, new StringToken(linksURL));
+            output.send(0, new StringToken(task.getId()));
+        } catch (FutureGatewayException | URISyntaxException e) {
+            throw new IllegalActionException(this, e, "Failed to create task");
+        }
     }
 }

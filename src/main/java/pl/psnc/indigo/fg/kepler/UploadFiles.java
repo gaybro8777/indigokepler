@@ -5,10 +5,12 @@ import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 import pl.psnc.indigo.fg.api.restful.jaxb.Upload;
+import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.ArrayToken;
 import ptolemy.data.StringToken;
+import ptolemy.data.Token;
 import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
@@ -18,6 +20,7 @@ import ptolemy.kernel.util.SingletonAttribute;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class UploadFiles extends LimitedFiringSource {
     public TypedIOPort userPort;
@@ -52,42 +55,25 @@ public class UploadFiles extends LimitedFiringSource {
     public void fire() throws IllegalActionException {
         super.fire();
 
-        String userString = null;
-        String idString = null;
+        String user = PortHelper.readString(userPort);
+        String id = PortHelper.readString(idPort);
+        List<String> inputFiles = PortHelper.readStringArray(inputFilesPort);
 
-        if (userPort.getWidth() > 0) {
-            StringToken userToken = (StringToken) userPort.get(0);
-            userString = userToken.stringValue();
-        }
-
-        if (idPort.getWidth() > 0) {
-            StringToken idToken = (StringToken) idPort.get(0);
-            idString = idToken.stringValue();
-        }
-
-        ArrayList<String> inputFilesArray = new ArrayList();
-
-        if (inputFilesPort.getWidth() > 0) {
-            ArrayToken inputFilesToken = (ArrayToken) inputFilesPort.get(0);
-            for (int i = 0; i < inputFilesToken.length(); i++) {
-                StringToken arrayElement = (StringToken) inputFilesToken.getElement(i);
-                inputFilesArray.add(arrayElement.stringValue());
-            }
-        }
+        Task task = new Task();
+        task.setUser(user);
+        task.setId(id);
 
         try {
             TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
+            List<StringToken> tokens = new ArrayList<>();
 
-            for (int i = 0; i < inputFilesArray.size(); i++) {
-                Task prepareToSubmit = new Task();
-                prepareToSubmit.setUser(userString);
-                prepareToSubmit.setId(idString);
-                Upload result = restAPI.uploadFileForTask(prepareToSubmit, new File(inputFilesArray.get(i)));
-                output.send(0, new StringToken(result.getTask()));
+            for (String inputFile : inputFiles) {
+                Upload result = restAPI.uploadFileForTask(task, new File(inputFile));
+                tokens.add(new StringToken(result.getTask()));
             }
-        } catch (FutureGatewayException e) {
-            throw new IllegalActionException(this, e, "Failed to upload files");
-        } catch (URISyntaxException e) {
+
+            output.broadcast(new ArrayToken(tokens.toArray(new Token[tokens.size()])));
+        } catch (FutureGatewayException | URISyntaxException e) {
             throw new IllegalActionException(this, e, "Failed to upload files");
         }
     }

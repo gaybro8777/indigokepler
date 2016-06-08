@@ -7,37 +7,26 @@ import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.actor.lib.LimitedFiringSource;
-import ptolemy.data.StringToken;
+import ptolemy.data.BooleanToken;
 import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
-import ptolemy.kernel.util.SingletonAttribute;
 
 import java.net.URISyntaxException;
 
-public class GetTask extends LimitedFiringSource {
+public class DeleteTask extends LimitedFiringSource {
     public TypedIOPort userPort;
     public TypedIOPort idPort;
-    public TypedIOPort statusPort;
 
-    public GetTask(CompositeEntity container, String name)
-            throws NameDuplicationException, IllegalActionException {
+    public DeleteTask(CompositeEntity container, String name) throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
         userPort = new TypedIOPort(this, "user", true, false);
-        new SingletonAttribute(userPort, "_showName");
         userPort.setTypeEquals(BaseType.STRING);
-
         idPort = new TypedIOPort(this, "id", true, false);
-        new SingletonAttribute(idPort, "_showName");
         idPort.setTypeEquals(BaseType.STRING);
-
-        statusPort = new TypedIOPort(this, "status", false, true);
-        new SingletonAttribute(statusPort, "_showName");
-        statusPort.setTypeEquals(BaseType.STRING);
-
-        output.setTypeEquals(BaseType.STRING);
+        output.setTypeEquals(BaseType.BOOLEAN);
     }
 
     @Override
@@ -52,12 +41,11 @@ public class GetTask extends LimitedFiringSource {
         task.setId(id);
 
         try {
-            TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
-            task = restAPI.getTask(task);
-            output.send(0, new StringToken(task.getId()));
-            statusPort.send(0, new StringToken(task.getStatus().name()));
+            TasksAPI api = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
+            boolean isSuccess = api.deleteTask(task);
+            output.broadcast(new BooleanToken(isSuccess));
         } catch (FutureGatewayException | URISyntaxException e) {
-            throw new IllegalActionException(this, e, "Failed to get task");
+            throw new IllegalActionException(this, e, "Failed to delete task");
         }
     }
 }

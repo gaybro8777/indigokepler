@@ -1,26 +1,28 @@
 package pl.psnc.indigo.fg.kepler;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import pl.psnc.indigo.fg.api.restful.BaseAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
+import pl.psnc.indigo.fg.kepler.helper.BeanTokenizer;
+import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.actor.lib.LimitedFiringSource;
-import ptolemy.data.StringToken;
+import ptolemy.data.ArrayToken;
+import ptolemy.data.RecordToken;
+import ptolemy.data.Token;
 import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GetAllTasks extends LimitedFiringSource {
-
     public TypedIOPort userPort;
 
     public GetAllTasks(CompositeEntity container, String name)
@@ -38,36 +40,19 @@ public class GetAllTasks extends LimitedFiringSource {
     public void fire() throws IllegalActionException {
         super.fire();
 
-        String userString = null;
+        String user = PortHelper.readString(userPort);
 
-        if (userPort.getWidth() > 0) {
-            StringToken userToken = (StringToken) userPort.get(0);
-            userString = userToken.stringValue();
-        }
-
-        Task taskToGet = new Task();
-        taskToGet.setUser(userString);
-
-        JSONArray array;
         try {
             TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
-            List<Task> result = restAPI.getAllTasks();
+            List<RecordToken> tokens = new ArrayList<>();
 
-            array = new JSONArray();
-
-            for (Task task : result) {
-                JSONObject object = new JSONObject();
-                object.put(task.getId(), task.getStatus());
-                array.put(object);
+            for (Task task : restAPI.getAllTasks(user)) {
+                tokens.add(BeanTokenizer.convert(task));
             }
-        } catch (FutureGatewayException e) {
-            throw new IllegalActionException(this, e, "Failed to get all tasks");
-        } catch (JSONException e) {
-            throw new IllegalActionException(this, e, "Failed to get all tasks");
-        } catch (URISyntaxException e) {
+
+            output.broadcast(new ArrayToken(tokens.toArray(new Token[tokens.size()])));
+        } catch (FutureGatewayException | URISyntaxException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new IllegalActionException(this, e, "Failed to get all tasks");
         }
-
-        output.send(0, new StringToken(array.toString()));
     }
 }
