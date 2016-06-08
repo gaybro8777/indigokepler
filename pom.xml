@@ -94,7 +94,7 @@
                                 <mkdir dir="${basedir}/target/indigo/lib64"/>
                                 <mkdir dir="${basedir}/target/indigo/module-info"/>
                                 <mkdir dir="${basedir}/target/indigo/target"/>
-                                <copy file="${basedir}/target/indigo-fg-actors-1.0-SNAPSHOT.jar"
+                                <copy file="${basedir}/target/${project.artifactId}-${project.version}.jar"
                                       tofile="${basedir}/target/indigo/target/indigo.jar"/>
                             </tasks>
                         </configuration>
