@@ -1,6 +1,6 @@
 package pl.psnc.indigo.fg.kepler;
 
-import pl.psnc.indigo.fg.api.restful.BaseAPI;
+import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.OutputFile;
@@ -17,11 +17,13 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
+import javax.ws.rs.core.UriBuilder;
 import java.io.File;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URI;
 
+@SuppressWarnings({ "WeakerAccess", "PublicField",
+                    "ThisEscapedInObjectConstruction",
+                    "ResultOfObjectAllocationIgnored", "unused" })
 public class DownloadFiles extends LimitedFiringSource {
     public TypedIOPort outputFilesPort;
     public TypedIOPort localFolderPort;
@@ -42,34 +44,42 @@ public class DownloadFiles extends LimitedFiringSource {
     }
 
     @Override
-    public void fire() throws IllegalActionException {
+    public final void fire() throws IllegalActionException {
         super.fire();
 
-        File localFolderString = new File(PortHelper.readString(localFolderPort));
-        List<OutputFile> outputFilesArray = new ArrayList<>();
+        String localFolderPath = PortHelper
+                .readStringMandatory(localFolderPort);
+        File localFolder = new File(localFolderPath);
 
         if (outputFilesPort.getWidth() > 0) {
-            ArrayToken outputFilesToken = (ArrayToken) outputFilesPort.get(0);
-            
-            for (int i = 0; i < outputFilesToken.length(); i++) {
-                RecordToken arrayElement = (RecordToken) outputFilesToken.getElement(i);
-                OutputFile tmpFile = new OutputFile();
-                tmpFile.setName(((StringToken) arrayElement.get("name")).stringValue());
-                tmpFile.setUrl(((StringToken) arrayElement.get("url")).stringValue());
-                outputFilesArray.add(tmpFile);
+            ArrayToken outputFiles = (ArrayToken) outputFilesPort.get(0);
+            int length = outputFiles.length();
+
+            try {
+                TasksAPI api = new TasksAPI(RootAPI.LOCALHOST_ADDRESS);
+
+                for (int i = 0; i < length; i++) {
+                    RecordToken token = (RecordToken) outputFiles.getElement(i);
+                    StringToken nameToken = (StringToken) token.get("name");
+                    StringToken urlToken = (StringToken) token.get("url");
+
+                    String name = nameToken.stringValue();
+                    String url = urlToken.stringValue();
+                    URI uri = UriBuilder.fromUri(url).build();
+
+                    OutputFile outputFile = new OutputFile();
+                    outputFile.setName(name);
+                    outputFile.setUrl(uri);
+
+                    api.downloadOutputFile(outputFile, localFolder);
+                }
+            } catch (FutureGatewayException e) {
+                throw new IllegalActionException(this, e, "Failed to download "
+                                                          + "files");
             }
+
         }
 
-        try {
-            TasksAPI api = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
-
-            for (int i = 0; i < outputFilesArray.size(); i++) {
-                api.downloadOutputFile(outputFilesArray.get(i), localFolderString);
-            }
-
-            output.send(0, new BooleanToken(true));
-        } catch (FutureGatewayException | URISyntaxException e) {
-            throw new IllegalActionException(this, e, "Failed to download files");
-        }
+        output.send(0, new BooleanToken(true));
     }
 }

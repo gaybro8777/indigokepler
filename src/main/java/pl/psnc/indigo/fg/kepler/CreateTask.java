@@ -1,6 +1,6 @@
 package pl.psnc.indigo.fg.kepler;
 
-import pl.psnc.indigo.fg.api.restful.BaseAPI;
+import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.InputFile;
@@ -17,10 +17,12 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings({ "WeakerAccess", "PublicField",
+                    "ThisEscapedInObjectConstruction",
+                    "ResultOfObjectAllocationIgnored" })
 public class CreateTask extends LimitedFiringSource {
     public TypedIOPort userPort;            // user name in FG database
     public TypedIOPort applicationPort;     // application id in FG database
@@ -66,18 +68,23 @@ public class CreateTask extends LimitedFiringSource {
     }
 
     @Override
-    public void fire() throws IllegalActionException {
+    public final void fire() throws IllegalActionException {
         super.fire();
 
-        String user = PortHelper.readString(userPort);
-        String application = PortHelper.readString(applicationPort);
-        String description = PortHelper.readString(descriptionPort);
-        List<String> arguments = PortHelper.readStringArray(argumentsPort);
-        List<String> inputFileNames = PortHelper.readStringArray(inputFilesPort);
-        List<String> outputFileNames = PortHelper.readStringArray(outputFilesPort);
+        String user = PortHelper.readStringMandatory(userPort);
+        String application = PortHelper.readStringMandatory(applicationPort);
+        String description = PortHelper.readStringOptional(descriptionPort);
+        List<String> arguments = PortHelper
+                .readStringArrayOptional(argumentsPort);
+        List<String> inputFileNames = PortHelper
+                .readStringArrayOptional(inputFilesPort);
+        List<String> outputFileNames = PortHelper
+                .readStringArrayOptional(outputFilesPort);
 
-        List<InputFile> inputFiles = new ArrayList<>();
-        List<OutputFile> outputFiles = new ArrayList<>();
+        int inputSize = inputFileNames.size();
+        int outputSize = outputFileNames.size();
+        List<InputFile> inputFiles = new ArrayList<>(inputSize);
+        List<OutputFile> outputFiles = new ArrayList<>(outputSize);
 
         for (String fileName : inputFileNames) {
             InputFile inputFile = new InputFile();
@@ -99,20 +106,22 @@ public class CreateTask extends LimitedFiringSource {
         task.setOutputFiles(outputFiles);
 
         try {
-            TasksAPI api = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
+            TasksAPI api = new TasksAPI(RootAPI.LOCALHOST_ADDRESS);
             task = api.createTask(task);
+            String id = task.getId();
 
             // We have to make sure there are inputs required by the application
             String linksURL = "";
-            for (Link l : task.getLinks()) {
-                if (l.getRel().equals("input")) {
-                    linksURL = l.getHref();
+            for (Link link : task.getLinks()) {
+                String rel = link.getRel();
+                if ("input".equals(rel)) {
+                    linksURL = link.getHref();
                 }
             }
 
             inputLoctaion.send(0, new StringToken(linksURL));
-            output.send(0, new StringToken(task.getId()));
-        } catch (FutureGatewayException | URISyntaxException e) {
+            output.send(0, new StringToken(id));
+        } catch (FutureGatewayException e) {
             throw new IllegalActionException(this, e, "Failed to create task");
         }
     }

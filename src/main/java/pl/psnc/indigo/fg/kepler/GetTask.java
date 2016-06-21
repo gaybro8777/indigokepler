@@ -1,6 +1,6 @@
 package pl.psnc.indigo.fg.kepler;
 
-import pl.psnc.indigo.fg.api.restful.BaseAPI;
+import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
@@ -14,8 +14,9 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
-import java.net.URISyntaxException;
-
+@SuppressWarnings({ "WeakerAccess", "PublicField",
+                    "ThisEscapedInObjectConstruction",
+                    "ResultOfObjectAllocationIgnored", "unused" })
 public class GetTask extends LimitedFiringSource {
     public TypedIOPort userPort;
     public TypedIOPort idPort;
@@ -41,22 +42,19 @@ public class GetTask extends LimitedFiringSource {
     }
 
     @Override
-    public void fire() throws IllegalActionException {
+    public final void fire() throws IllegalActionException {
         super.fire();
 
-        String user = PortHelper.readString(userPort);
-        String id = PortHelper.readString(idPort);
-
-        Task task = new Task();
-        task.setUser(user);
-        task.setId(id);
+        String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
-            task = restAPI.getTask(task);
-            output.send(0, new StringToken(task.getId()));
-            statusPort.send(0, new StringToken(task.getStatus().name()));
-        } catch (FutureGatewayException | URISyntaxException e) {
+            TasksAPI restAPI = new TasksAPI(RootAPI.LOCALHOST_ADDRESS);
+            Task task = restAPI.getTask(id);
+            String status = task.getStatus().name();
+
+            output.send(0, new StringToken(id));
+            statusPort.send(0, new StringToken(status));
+        } catch (FutureGatewayException e) {
             throw new IllegalActionException(this, e, "Failed to get task");
         }
     }
