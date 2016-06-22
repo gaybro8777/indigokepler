@@ -13,6 +13,7 @@ import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.ArrayToken;
 import ptolemy.data.RecordToken;
 import ptolemy.data.Token;
+import ptolemy.data.type.ArrayType;
 import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
@@ -61,7 +62,7 @@ public class UploadFiles extends LimitedFiringSource {
 
         inputFilesPort = new TypedIOPort(this, "inputFiles", true, false);
         new SingletonAttribute(inputFilesPort, "_showName");
-        inputFilesPort.setTypeEquals(BaseType.GENERAL);
+        inputFilesPort.setTypeEquals(new ArrayType(BaseType.STRING));
 
         output.setTypeEquals(BaseType.GENERAL);
     }
@@ -85,8 +86,14 @@ public class UploadFiles extends LimitedFiringSource {
             List<Token> tokens = new ArrayList<>(size);
 
             for (String inputFile : inputFiles) {
-                Upload result = restAPI
-                        .uploadFileForTask(task, new File(inputFile));
+                File file = new File(inputFile);
+
+                if (!file.canRead()) {
+                    throw new IllegalActionException(this, "Cannot read file: "
+                                                           + file);
+                }
+
+                Upload result = restAPI.uploadFileForTask(task, file);
                 RecordToken recordToken = BeanTokenizer.convert(result);
                 tokens.add(recordToken);
             }

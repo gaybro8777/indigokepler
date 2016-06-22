@@ -12,6 +12,7 @@ import ptolemy.data.ArrayToken;
 import ptolemy.data.BooleanToken;
 import ptolemy.data.RecordToken;
 import ptolemy.data.StringToken;
+import ptolemy.data.type.ArrayType;
 import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
@@ -20,15 +21,16 @@ import ptolemy.kernel.util.SingletonAttribute;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 
 /**
  * Download task's output files into a local directory. See
  * {@link TasksAPI#downloadOutputFile(OutputFile, File)}.
  */
-@SuppressWarnings({ "WeakerAccess", "PublicField",
-                    "ThisEscapedInObjectConstruction",
-                    "ResultOfObjectAllocationIgnored", "unused" })
+@SuppressWarnings({"WeakerAccess", "PublicField",
+                   "ThisEscapedInObjectConstruction",
+                   "ResultOfObjectAllocationIgnored", "unused"})
 public class DownloadFiles extends LimitedFiringSource {
     /**
      * A list of {@link RecordToken} with "name" and "url" describing the
@@ -48,7 +50,8 @@ public class DownloadFiles extends LimitedFiringSource {
 
         outputFilesPort = new TypedIOPort(this, "outputFiles", true, false);
         new SingletonAttribute(outputFilesPort, "_showName");
-        outputFilesPort.setTypeEquals(BaseType.GENERAL);
+        outputFilesPort
+                .setTypeEquals(new ArrayType(GetOutputsList.OUTPUT_FILE_TYPE));
 
         localFolderPort = new TypedIOPort(this, "local_folder", true, false);
         new SingletonAttribute(localFolderPort, "_showName");
@@ -87,7 +90,7 @@ public class DownloadFiles extends LimitedFiringSource {
 
                     api.downloadOutputFile(outputFile, localFolder);
                 }
-            } catch (FutureGatewayException e) {
+            } catch (FutureGatewayException | IOException e) {
                 throw new IllegalActionException(this, e, "Failed to download "
                                                           + "files");
             }

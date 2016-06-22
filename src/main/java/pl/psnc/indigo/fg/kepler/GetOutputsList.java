@@ -11,6 +11,7 @@ import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.ArrayToken;
 import ptolemy.data.RecordToken;
 import ptolemy.data.StringToken;
+import ptolemy.data.type.ArrayType;
 import ptolemy.data.type.BaseType;
 import ptolemy.data.type.RecordType;
 import ptolemy.data.type.Type;
@@ -31,7 +32,10 @@ import java.util.List;
 public class GetOutputsList extends LimitedFiringSource {
     private static final String[] LABELS = {"url", "name"};
     private static final Type[] TYPES = {BaseType.STRING, BaseType.STRING};
-    private static final Type RECORD_TYPE = new RecordType(
+    /**
+     * A {@link Type} of token produced by this actor.
+     */
+    public static final Type OUTPUT_FILE_TYPE = new RecordType(
             GetOutputsList.LABELS, GetOutputsList.TYPES);
 
     /**
@@ -48,7 +52,7 @@ public class GetOutputsList extends LimitedFiringSource {
         new SingletonAttribute(idPort, "_showName");
         idPort.setTypeEquals(BaseType.STRING);
 
-        output.setTypeEquals(BaseType.GENERAL);
+        output.setTypeEquals(new ArrayType(GetOutputsList.OUTPUT_FILE_TYPE));
     }
 
     @Override
@@ -74,7 +78,7 @@ public class GetOutputsList extends LimitedFiringSource {
             }
 
             output.broadcast(
-                    new ArrayToken(GetOutputsList.RECORD_TYPE, tokens));
+                    new ArrayToken(GetOutputsList.OUTPUT_FILE_TYPE, tokens));
         } catch (FutureGatewayException e) {
             throw new IllegalActionException(this, e,
                                              "Failed to get output list");
