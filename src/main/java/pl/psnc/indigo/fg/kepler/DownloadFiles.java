@@ -4,6 +4,7 @@ import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.OutputFile;
+import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.actor.lib.LimitedFiringSource;
@@ -21,14 +22,27 @@ import javax.ws.rs.core.UriBuilder;
 import java.io.File;
 import java.net.URI;
 
+/**
+ * Download task's output files into a local directory. See
+ * {@link TasksAPI#downloadOutputFile(OutputFile, File)}.
+ */
 @SuppressWarnings({ "WeakerAccess", "PublicField",
                     "ThisEscapedInObjectConstruction",
                     "ResultOfObjectAllocationIgnored", "unused" })
 public class DownloadFiles extends LimitedFiringSource {
+    /**
+     * A list of {@link RecordToken} with "name" and "url" describing the
+     * files to be downloaded (mandatory).
+     */
+    @AllowedPublicField
     public TypedIOPort outputFilesPort;
+    /**
+     * A local directory where files will be downloaded (mandatory).
+     */
+    @AllowedPublicField
     public TypedIOPort localFolderPort;
 
-    public DownloadFiles(CompositeEntity container, String name)
+    public DownloadFiles(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 

@@ -4,6 +4,7 @@ import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
+import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.BeanTokenizer;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
@@ -17,17 +18,24 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings({ "WeakerAccess", "PublicField",
-                    "ThisEscapedInObjectConstruction",
-                    "ResultOfObjectAllocationIgnored", "unused" })
+/**
+ * Actor which reports all tasks belonging to a user. See
+ * {@link TasksAPI#getAllTasks(String)}.
+ */
+@SuppressWarnings({"WeakerAccess", "PublicField",
+                   "ThisEscapedInObjectConstruction",
+                   "ResultOfObjectAllocationIgnored", "unused"})
 public class GetAllTasks extends LimitedFiringSource {
+    /**
+     * User id (mandatory).
+     */
+    @AllowedPublicField
     public TypedIOPort userPort;
 
-    public GetAllTasks(CompositeEntity container, String name)
+    public GetAllTasks(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
@@ -57,8 +65,7 @@ public class GetAllTasks extends LimitedFiringSource {
 
             Token[] array = tokens.toArray(new Token[size]);
             output.broadcast(new ArrayToken(array));
-        } catch (FutureGatewayException | NoSuchMethodException |
-                IllegalAccessException | InvocationTargetException e) {
+        } catch (FutureGatewayException e) {
             throw new IllegalActionException(this, e,
                                              "Failed to get all tasks");
         }

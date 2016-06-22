@@ -4,6 +4,7 @@ import pl.psnc.indigo.fg.api.restful.ApplicationsAPI;
 import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Application;
+import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.BeanTokenizer;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
@@ -15,15 +16,21 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
-import java.lang.reflect.InvocationTargetException;
-
+/**
+ * Actor which queries Future Gateway for application details. See:
+ * {@link ApplicationsAPI#getApplication(String)}
+ */
 @SuppressWarnings({ "WeakerAccess", "PublicField",
                     "ThisEscapedInObjectConstruction",
                     "ResultOfObjectAllocationIgnored", "unused" })
 public class GetApplication extends LimitedFiringSource {
+    /**
+     * Receives application's id to be queried in the Future Gateway.
+     */
+    @AllowedPublicField
     public TypedIOPort idPort;
 
-    public GetApplication(CompositeEntity container, String name)
+    public GetApplication(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
@@ -44,8 +51,7 @@ public class GetApplication extends LimitedFiringSource {
             Application application = api.getApplication(id);
             RecordToken recordToken = BeanTokenizer.convert(application);
             output.broadcast(recordToken);
-        } catch (FutureGatewayException | IllegalAccessException |
-                NoSuchMethodException | InvocationTargetException e) {
+        } catch (FutureGatewayException e) {
             throw new IllegalActionException(this, e, "Failed to list all "
                                                       + "applications");
         }

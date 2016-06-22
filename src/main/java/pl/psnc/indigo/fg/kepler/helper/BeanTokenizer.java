@@ -16,26 +16,56 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+/**
+ * A helper, utility class to convert from bean to Kepler's record tokens.
+ */
 public final class BeanTokenizer {
+    /**
+     * Convert a bean object into Kepler's record token.
+     *
+     * @param beanObject A bean object with getters and setters for every
+     *                   property.
+     * @return A record token with map of key-value pairs representing bean's
+     * properties.
+     * @throws IllegalActionException If conversion process fails.
+     */
     public static RecordToken convert(final Object beanObject)
-            throws IllegalAccessException, NoSuchMethodException,
-                   InvocationTargetException, IllegalActionException {
-        Map<String, Object> objectMap = PropertyUtils.describe(beanObject);
-        Map<String, Token> tokenMap = new HashMap<>();
+            throws IllegalActionException {
+        try {
+            Map<String, Object> objectMap = PropertyUtils.describe(beanObject);
+            int size = objectMap.size();
+            Map<String, Token> tokenMap = new HashMap<>(size);
 
-        for (Entry<String, Object> entry : objectMap.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            Token token = BeanTokenizer.asToken(value);
-            tokenMap.put(key, token);
+            for (Entry<String, Object> entry : objectMap.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                Token token = BeanTokenizer.asToken(value);
+                tokenMap.put(key, token);
+            }
+
+            return new RecordToken(tokenMap);
+        } catch (IllegalAccessException | InvocationTargetException
+                | NoSuchMethodException e) {
+            throw new IllegalActionException(null, e,
+                                             "Failed to convert a bean to a "
+                                             + "record token");
         }
-
-        return new RecordToken(tokenMap);
     }
 
+    /**
+     * Convert a single object into a {@link Token}. If object's class is
+     * annotated with {@link FutureGatewayBean}, then it will be converted
+     * recursively into a {@link RecordToken}. For primitive data types,
+     * currently supported tokens are: {@link Token#NIL}, {@link StringToken},
+     * {@link IntToken}, {@link BooleanToken} and {@link DateToken}.
+     *
+     * @param object An object to be converted.
+     * @return A {@link Token} made out of the object.
+     * @throws IllegalActionException If the object is a bean and its
+     *                                recursive processing ends in error.
+     */
     private static Token asToken(final Object object)
-            throws InvocationTargetException, NoSuchMethodException,
-                   IllegalActionException, IllegalAccessException {
+            throws IllegalActionException {
         if (object == null) {
             return Token.NIL;
         } else if (object instanceof String) {

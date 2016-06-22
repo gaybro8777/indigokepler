@@ -13,13 +13,17 @@ import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Actor which lists all applications available in the Future Gateway
+ * database. See {@link ApplicationsAPI#getAllApplications()}.
+ */
 @SuppressWarnings("unused")
 public class GetAllApplications extends LimitedFiringSource {
-    public GetAllApplications(CompositeEntity container, String name)
+    public GetAllApplications(final CompositeEntity container,
+                              final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
     }
@@ -42,8 +46,7 @@ public class GetAllApplications extends LimitedFiringSource {
 
             Token[] array = tokens.toArray(new Token[size]);
             output.broadcast(new ArrayToken(array));
-        } catch (FutureGatewayException | IllegalAccessException |
-                NoSuchMethodException | InvocationTargetException e) {
+        } catch (FutureGatewayException e) {
             throw new IllegalActionException(this, e,
                                              "Failed to list all applications");
         }

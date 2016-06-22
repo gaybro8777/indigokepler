@@ -4,6 +4,7 @@ import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
+import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.actor.lib.LimitedFiringSource;
@@ -14,21 +15,27 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
-@SuppressWarnings({ "WeakerAccess", "PublicField",
-                    "ThisEscapedInObjectConstruction",
-                    "ResultOfObjectAllocationIgnored", "unused" })
+/**
+ * Actor which gets status of a task. See {@link TasksAPI#getTask(String)}.
+ */
+@SuppressWarnings({"WeakerAccess", "PublicField",
+                   "ThisEscapedInObjectConstruction",
+                   "ResultOfObjectAllocationIgnored", "unused"})
 public class GetTask extends LimitedFiringSource {
-    public TypedIOPort userPort;
+    /**
+     * Task id (mandatory).
+     */
+    @AllowedPublicField
     public TypedIOPort idPort;
+    /**
+     * Output port which will receive task's status.
+     */
+    @AllowedPublicField
     public TypedIOPort statusPort;
 
-    public GetTask(CompositeEntity container, String name)
+    public GetTask(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
-
-        userPort = new TypedIOPort(this, "user", true, false);
-        new SingletonAttribute(userPort, "_showName");
-        userPort.setTypeEquals(BaseType.STRING);
 
         idPort = new TypedIOPort(this, "id", true, false);
         new SingletonAttribute(idPort, "_showName");

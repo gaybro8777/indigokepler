@@ -7,6 +7,7 @@ import pl.psnc.indigo.fg.api.restful.jaxb.InputFile;
 import pl.psnc.indigo.fg.api.restful.jaxb.Link;
 import pl.psnc.indigo.fg.api.restful.jaxb.OutputFile;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
+import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.actor.lib.LimitedFiringSource;
@@ -20,19 +21,52 @@ import ptolemy.kernel.util.SingletonAttribute;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * An actor which submits a new task using Future Gateway. See:
+ * {@link TasksAPI#createTask(Task)}
+ */
 @SuppressWarnings({ "WeakerAccess", "PublicField",
                     "ThisEscapedInObjectConstruction",
                     "ResultOfObjectAllocationIgnored" })
 public class CreateTask extends LimitedFiringSource {
-    public TypedIOPort userPort;            // user name in FG database
-    public TypedIOPort applicationPort;     // application id in FG database
-    public TypedIOPort descriptionPort;     // description passed to app
-    public TypedIOPort argumentsPort;       // array of arguments passed to app
-    public TypedIOPort inputFilesPort;      // array of input files
-    public TypedIOPort outputFilesPort;     // array of output files
-    public TypedIOPort inputLoctaion;
+    /**
+     * User name (mandatory).
+     */
+    @AllowedPublicField
+    public TypedIOPort userPort;
+    /**
+     * Application id (mandatory).
+     */
+    @AllowedPublicField
+    public TypedIOPort applicationPort;
+    /**
+     * Description of the task (optional).
+     */
+    @AllowedPublicField
+    public TypedIOPort descriptionPort;
+    /**
+     * Arguments of the task (optional).
+     */
+    @AllowedPublicField
+    public TypedIOPort argumentsPort;
+    /**
+     * Input files' paths (optional).
+     */
+    @AllowedPublicField
+    public TypedIOPort inputFilesPort;
+    /**
+     * Output files' names (optional).
+     */
+    @AllowedPublicField
+    public TypedIOPort outputFilesPort;
+    /**
+     * Output port which will contain base URL where to upload input files
+     * once the task is submitted.
+     */
+    @AllowedPublicField
+    public TypedIOPort inputLocationPort;
 
-    public CreateTask(CompositeEntity container, String name)
+    public CreateTask(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
@@ -60,9 +94,9 @@ public class CreateTask extends LimitedFiringSource {
         new SingletonAttribute(outputFilesPort, "_showName");
         outputFilesPort.setTypeEquals(BaseType.GENERAL);
 
-        inputLoctaion = new TypedIOPort(this, "inputs", false, true);
-        new SingletonAttribute(inputLoctaion, "_showName");
-        inputLoctaion.setTypeEquals(BaseType.STRING);
+        inputLocationPort = new TypedIOPort(this, "inputs", false, true);
+        new SingletonAttribute(inputLocationPort, "_showName");
+        inputLocationPort.setTypeEquals(BaseType.STRING);
 
         output.setTypeEquals(BaseType.STRING);
     }
@@ -119,7 +153,7 @@ public class CreateTask extends LimitedFiringSource {
                 }
             }
 
-            inputLoctaion.send(0, new StringToken(linksURL));
+            inputLocationPort.send(0, new StringToken(linksURL));
             output.send(0, new StringToken(id));
         } catch (FutureGatewayException e) {
             throw new IllegalActionException(this, e, "Failed to create task");
