@@ -50,7 +50,9 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.7</version>
                 <executions>
@@ -63,7 +65,6 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/indigo/src</outputDirectory>
-                            <overWriteIfNewer>true</overWriteIfNewer>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/src/main/java</directory>
@@ -76,9 +77,11 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
                 <executions>
                     <execution>
                         <id>create-empty-directory</id>
@@ -100,6 +103,15 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.17</version>
+                <configuration>
+                    <configLocation>file://${basedir}/config/sun_checks_kepler.xml</configLocation>
+                </configuration>
             </plugin>
         </plugins>
     </build>

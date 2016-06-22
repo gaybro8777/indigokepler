@@ -1,9 +1,10 @@
 package pl.psnc.indigo.fg.kepler;
 
-import pl.psnc.indigo.fg.api.restful.BaseAPI;
+import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
+import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.BeanTokenizer;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
@@ -17,15 +18,24 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Actor which reports all tasks belonging to a user. See
+ * {@link TasksAPI#getAllTasks(String)}.
+ */
+@SuppressWarnings({"WeakerAccess", "PublicField",
+                   "ThisEscapedInObjectConstruction",
+                   "ResultOfObjectAllocationIgnored", "unused"})
 public class GetAllTasks extends LimitedFiringSource {
+    /**
+     * User id (mandatory).
+     */
+    @AllowedPublicField
     public TypedIOPort userPort;
 
-    public GetAllTasks(CompositeEntity container, String name)
+    public GetAllTasks(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
@@ -37,22 +47,27 @@ public class GetAllTasks extends LimitedFiringSource {
     }
 
     @Override
-    public void fire() throws IllegalActionException {
+    public final void fire() throws IllegalActionException {
         super.fire();
 
-        String user = PortHelper.readString(userPort);
+        String user = PortHelper.readStringMandatory(userPort);
 
         try {
-            TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
-            List<RecordToken> tokens = new ArrayList<>();
+            TasksAPI restAPI = new TasksAPI(RootAPI.LOCALHOST_ADDRESS);
+            List<Task> tasks = restAPI.getAllTasks(user);
+            int size = tasks.size();
+            List<RecordToken> tokens = new ArrayList<>(size);
 
-            for (Task task : restAPI.getAllTasks(user)) {
-                tokens.add(BeanTokenizer.convert(task));
+            for (Task task : tasks) {
+                RecordToken recordToken = BeanTokenizer.convert(task);
+                tokens.add(recordToken);
             }
 
-            output.broadcast(new ArrayToken(tokens.toArray(new Token[tokens.size()])));
-        } catch (FutureGatewayException | URISyntaxException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalActionException(this, e, "Failed to get all tasks");
+            Token[] array = tokens.toArray(new Token[size]);
+            output.broadcast(new ArrayToken(array));
+        } catch (FutureGatewayException e) {
+            throw new IllegalActionException(this, e,
+                                             "Failed to get all tasks");
         }
     }
 }

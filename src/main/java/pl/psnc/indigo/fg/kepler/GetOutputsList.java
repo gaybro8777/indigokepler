@@ -1,72 +1,87 @@
 package pl.psnc.indigo.fg.kepler;
 
-import pl.psnc.indigo.fg.api.restful.BaseAPI;
+import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.OutputFile;
-import pl.psnc.indigo.fg.api.restful.jaxb.Task;
+import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.ArrayToken;
 import ptolemy.data.RecordToken;
 import ptolemy.data.StringToken;
+import ptolemy.data.type.ArrayType;
 import ptolemy.data.type.BaseType;
+import ptolemy.data.type.RecordType;
+import ptolemy.data.type.Type;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.logging.Logger;
 
+/**
+ * Actor which retrieves task's output files and sends them in a
+ * {@link RecordToken}. See {@link TasksAPI#getOutputsForTask(String)}.
+ */
+@SuppressWarnings({"WeakerAccess", "PublicField",
+                   "ThisEscapedInObjectConstruction",
+                   "ResultOfObjectAllocationIgnored", "unused"})
 public class GetOutputsList extends LimitedFiringSource {
-    private final static Logger LOGGER = Logger.getLogger(GetOutputsList.class.getName());
+    private static final String[] LABELS = {"url", "name"};
+    private static final Type[] TYPES = {BaseType.STRING, BaseType.STRING};
+    /**
+     * A {@link Type} of token produced by this actor.
+     */
+    public static final Type OUTPUT_FILE_TYPE = new RecordType(
+            GetOutputsList.LABELS, GetOutputsList.TYPES);
 
-    public TypedIOPort userPort;
+    /**
+     * Task id (mandatory).
+     */
+    @AllowedPublicField
     public TypedIOPort idPort;
 
-    public GetOutputsList(CompositeEntity container, String name)
+    public GetOutputsList(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
-
-        userPort = new TypedIOPort(this, "user", true, false);
-        new SingletonAttribute(userPort, "_showName");
-        userPort.setTypeEquals(BaseType.STRING);
 
         idPort = new TypedIOPort(this, "id", true, false);
         new SingletonAttribute(idPort, "_showName");
         idPort.setTypeEquals(BaseType.STRING);
+
+        output.setTypeEquals(new ArrayType(GetOutputsList.OUTPUT_FILE_TYPE));
     }
 
     @Override
-    public void fire() throws IllegalActionException {
+    public final void fire() throws IllegalActionException {
         super.fire();
 
-        String user = PortHelper.readString(userPort);
-        String id = PortHelper.readString(idPort);
-
-        Task taskToGet = new Task();
-        taskToGet.setUser(user);
-        taskToGet.setId(id);
+        String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
+            TasksAPI restAPI = new TasksAPI(RootAPI.LOCALHOST_ADDRESS);
 
-            List<OutputFile> files = restAPI.getOutputsForTask(taskToGet);
+            List<OutputFile> files = restAPI.getOutputsForTask(id);
             RecordToken[] tokens = new RecordToken[files.size()];
 
             for (int i = 0; i < files.size(); i++) {
+                String name = files.get(i).getName();
+                String url = files.get(i).getUrl().toString();
+
                 StringToken[] file = new StringToken[2];
-                file[0] = new StringToken(files.get(i).getUrl());
-                file[1] = new StringToken(files.get(i).getName());
-                tokens[i] = new RecordToken(new String[]{"url", "name"}, file);
+                file[0] = new StringToken(url);
+                file[1] = new StringToken(name);
+                tokens[i] = new RecordToken(GetOutputsList.LABELS, file);
             }
 
-            output.broadcast(new ArrayToken(tokens));
-        } catch (FutureGatewayException | URISyntaxException e) {
-            throw new IllegalActionException(this, e, "Failed to get output list");
+            output.broadcast(
+                    new ArrayToken(GetOutputsList.OUTPUT_FILE_TYPE, tokens));
+        } catch (FutureGatewayException e) {
+            throw new IllegalActionException(this, e,
+                                             "Failed to get output list");
         }
     }
 }

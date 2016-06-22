@@ -1,16 +1,19 @@
 package pl.psnc.indigo.fg.kepler;
 
-import pl.psnc.indigo.fg.api.restful.BaseAPI;
+import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 import pl.psnc.indigo.fg.api.restful.jaxb.Upload;
+import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
+import pl.psnc.indigo.fg.kepler.helper.BeanTokenizer;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.ArrayToken;
-import ptolemy.data.StringToken;
+import ptolemy.data.RecordToken;
 import ptolemy.data.Token;
+import ptolemy.data.type.ArrayType;
 import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
@@ -18,17 +21,34 @@ import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Actor which uploads input files. See
+ * {@link TasksAPI#uploadFileForTask(Task, File)}.
+ */
+@SuppressWarnings({"WeakerAccess", "PublicField",
+                   "ThisEscapedInObjectConstruction",
+                   "ResultOfObjectAllocationIgnored", "unused"})
 public class UploadFiles extends LimitedFiringSource {
+    /**
+     * User id (mandatory).
+     */
+    @AllowedPublicField
     public TypedIOPort userPort;
+    /**
+     * Task id (mandatory).
+     */
+    @AllowedPublicField
     public TypedIOPort idPort;
+    /**
+     * List of input files (mandatory).
+     */
+    @AllowedPublicField
     public TypedIOPort inputFilesPort;
-    public TypedIOPort uploadURL;
 
-    public UploadFiles(CompositeEntity container, String name)
+    public UploadFiles(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
@@ -42,38 +62,45 @@ public class UploadFiles extends LimitedFiringSource {
 
         inputFilesPort = new TypedIOPort(this, "inputFiles", true, false);
         new SingletonAttribute(inputFilesPort, "_showName");
-        inputFilesPort.setTypeEquals(BaseType.GENERAL);
+        inputFilesPort.setTypeEquals(new ArrayType(BaseType.STRING));
 
-        uploadURL = new TypedIOPort(this, "uploadURL", true, false);
-        new SingletonAttribute(uploadURL, "_showName");
-        uploadURL.setTypeEquals(BaseType.STRING);
-
-        output.setTypeEquals(BaseType.STRING);
+        output.setTypeEquals(BaseType.GENERAL);
     }
 
     @Override
-    public void fire() throws IllegalActionException {
+    public final void fire() throws IllegalActionException {
         super.fire();
 
-        String user = PortHelper.readString(userPort);
-        String id = PortHelper.readString(idPort);
-        List<String> inputFiles = PortHelper.readStringArray(inputFilesPort);
+        String user = PortHelper.readStringMandatory(userPort);
+        String id = PortHelper.readStringMandatory(idPort);
+        List<String> inputFiles = PortHelper
+                .readStringArrayMandatory(inputFilesPort);
+        int size = inputFiles.size();
 
         Task task = new Task();
         task.setUser(user);
         task.setId(id);
 
         try {
-            TasksAPI restAPI = new TasksAPI(BaseAPI.LOCALHOST_ADDRESS);
-            List<StringToken> tokens = new ArrayList<>();
+            TasksAPI restAPI = new TasksAPI(RootAPI.LOCALHOST_ADDRESS);
+            List<Token> tokens = new ArrayList<>(size);
 
             for (String inputFile : inputFiles) {
-                Upload result = restAPI.uploadFileForTask(task, new File(inputFile));
-                tokens.add(new StringToken(result.getTask()));
+                File file = new File(inputFile);
+
+                if (!file.canRead()) {
+                    throw new IllegalActionException(this, "Cannot read file: "
+                                                           + file);
+                }
+
+                Upload result = restAPI.uploadFileForTask(task, file);
+                RecordToken recordToken = BeanTokenizer.convert(result);
+                tokens.add(recordToken);
             }
 
-            output.broadcast(new ArrayToken(tokens.toArray(new Token[tokens.size()])));
-        } catch (FutureGatewayException | URISyntaxException e) {
+            Token[] array = tokens.toArray(new Token[size]);
+            output.broadcast(new ArrayToken(array));
+        } catch (FutureGatewayException e) {
             throw new IllegalActionException(this, e, "Failed to upload files");
         }
     }

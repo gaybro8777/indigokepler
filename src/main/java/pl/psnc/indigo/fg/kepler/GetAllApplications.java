@@ -1,7 +1,7 @@
 package pl.psnc.indigo.fg.kepler;
 
 import pl.psnc.indigo.fg.api.restful.ApplicationsAPI;
-import pl.psnc.indigo.fg.api.restful.BaseAPI;
+import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Application;
 import pl.psnc.indigo.fg.kepler.helper.BeanTokenizer;
@@ -13,31 +13,42 @@ import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Actor which lists all applications available in the Future Gateway
+ * database. See {@link ApplicationsAPI#getAllApplications()}.
+ */
+@SuppressWarnings("unused")
 public class GetAllApplications extends LimitedFiringSource {
-    public GetAllApplications(CompositeEntity container, String name) throws NameDuplicationException, IllegalActionException {
+    public GetAllApplications(final CompositeEntity container,
+                              final String name)
+            throws NameDuplicationException, IllegalActionException {
         super(container, name);
     }
 
     @Override
-    public void fire() throws IllegalActionException {
+    public final void fire() throws IllegalActionException {
         super.fire();
 
         try {
-            ApplicationsAPI api = new ApplicationsAPI(BaseAPI.LOCALHOST_ADDRESS);
-            List<RecordToken> tokens = new ArrayList<>();
+            ApplicationsAPI api = new ApplicationsAPI(
+                    RootAPI.LOCALHOST_ADDRESS);
+            List<Application> applications = api.getAllApplications();
+            int size = applications.size();
+            List<RecordToken> tokens = new ArrayList<>(size);
 
-            for (Application application : api.getAllApplications()) {
-                tokens.add(BeanTokenizer.convert(application));
+            for (Application application : applications) {
+                RecordToken recordToken = BeanTokenizer.convert(application);
+                tokens.add(recordToken);
             }
 
-            output.broadcast(new ArrayToken(tokens.toArray(new Token[tokens.size()])));
-        } catch (FutureGatewayException | URISyntaxException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            throw new IllegalActionException(this, e, "Failed to list all applications");
+            Token[] array = tokens.toArray(new Token[size]);
+            output.broadcast(new ArrayToken(array));
+        } catch (FutureGatewayException e) {
+            throw new IllegalActionException(this, e,
+                                             "Failed to list all applications");
         }
     }
 }
