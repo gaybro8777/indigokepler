@@ -1,18 +1,18 @@
 package pl.psnc.indigo.fg.kepler;
 
-import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
-import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.BooleanToken;
 import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
+
+import java.net.URI;
 
 /**
  * Actor which deletes a task from the Future Gateway database. See
@@ -21,7 +21,7 @@ import ptolemy.kernel.util.SingletonAttribute;
 @SuppressWarnings({"WeakerAccess", "PublicField",
                    "ThisEscapedInObjectConstruction",
                    "ResultOfObjectAllocationIgnored", "unused"})
-public class DeleteTask extends LimitedFiringSource {
+public class DeleteTask extends FutureGatewayActor {
     /**
      * Task id (mandatory).
      */
@@ -46,7 +46,8 @@ public class DeleteTask extends LimitedFiringSource {
         String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            TasksAPI api = new TasksAPI(RootAPI.LOCALHOST_ADDRESS);
+            TasksAPI api = new TasksAPI(
+                    URI.create(futureGatewayUri.stringValue()));
             boolean isSuccess = api.deleteTask(id);
             output.broadcast(new BooleanToken(isSuccess));
         } catch (FutureGatewayException e) {

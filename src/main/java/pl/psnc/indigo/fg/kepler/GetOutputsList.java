@@ -1,13 +1,11 @@
 package pl.psnc.indigo.fg.kepler;
 
-import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.OutputFile;
 import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
-import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.ArrayToken;
 import ptolemy.data.RecordToken;
 import ptolemy.data.StringToken;
@@ -20,6 +18,7 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -29,7 +28,7 @@ import java.util.List;
 @SuppressWarnings({"WeakerAccess", "PublicField",
                    "ThisEscapedInObjectConstruction",
                    "ResultOfObjectAllocationIgnored", "unused"})
-public class GetOutputsList extends LimitedFiringSource {
+public class GetOutputsList extends FutureGatewayActor {
     private static final String[] LABELS = {"url", "name"};
     private static final Type[] TYPES = {BaseType.STRING, BaseType.STRING};
     /**
@@ -62,7 +61,8 @@ public class GetOutputsList extends LimitedFiringSource {
         String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            TasksAPI restAPI = new TasksAPI(RootAPI.LOCALHOST_ADDRESS);
+            TasksAPI restAPI = new TasksAPI(
+                    URI.create(futureGatewayUri.stringValue()));
 
             List<OutputFile> files = restAPI.getOutputsForTask(id);
             RecordToken[] tokens = new RecordToken[files.size()];

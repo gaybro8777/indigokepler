@@ -1,13 +1,11 @@
 package pl.psnc.indigo.fg.kepler;
 
-import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
-import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.StringToken;
 import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
@@ -15,13 +13,15 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
+import java.net.URI;
+
 /**
  * Actor which gets status of a task. See {@link TasksAPI#getTask(String)}.
  */
 @SuppressWarnings({"WeakerAccess", "PublicField",
                    "ThisEscapedInObjectConstruction",
                    "ResultOfObjectAllocationIgnored", "unused"})
-public class GetTask extends LimitedFiringSource {
+public class GetTask extends FutureGatewayActor {
     /**
      * Task id (mandatory).
      */
@@ -45,6 +45,8 @@ public class GetTask extends LimitedFiringSource {
         new SingletonAttribute(statusPort, "_showName");
         statusPort.setTypeEquals(BaseType.STRING);
 
+        output.setName("idOut");
+        new SingletonAttribute(output, "_showName");
         output.setTypeEquals(BaseType.STRING);
     }
 
@@ -55,7 +57,8 @@ public class GetTask extends LimitedFiringSource {
         String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            TasksAPI restAPI = new TasksAPI(RootAPI.LOCALHOST_ADDRESS);
+            TasksAPI restAPI = new TasksAPI(
+                    URI.create(futureGatewayUri.stringValue()));
             Task task = restAPI.getTask(id);
             String status = task.getStatus().name();
 
