@@ -61,8 +61,7 @@ public class GetOutputsList extends FutureGatewayActor {
         String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            TasksAPI restAPI = new TasksAPI(
-                    URI.create(futureGatewayUri.stringValue()));
+            TasksAPI restAPI = new TasksAPI(URI.create(getFutureGatewayUri()));
 
             List<OutputFile> files = restAPI.getOutputsForTask(id);
             RecordToken[] tokens = new RecordToken[files.size()];

@@ -47,7 +47,7 @@ public class GetApplication extends FutureGatewayActor {
 
         try {
             ApplicationsAPI api = new ApplicationsAPI(
-                    URI.create(futureGatewayUri.stringValue()));
+                    URI.create(getFutureGatewayUri()));
             Application application = api.getApplication(id);
             RecordToken recordToken = BeanTokenizer.convert(application);
             output.broadcast(recordToken);

@@ -57,8 +57,7 @@ public class GetTask extends FutureGatewayActor {
         String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            TasksAPI restAPI = new TasksAPI(
-                    URI.create(futureGatewayUri.stringValue()));
+            TasksAPI restAPI = new TasksAPI(URI.create(getFutureGatewayUri()));
             Task task = restAPI.getTask(id);
             String status = task.getStatus().name();
 

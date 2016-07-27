@@ -52,8 +52,7 @@ public class GetAllTasks extends FutureGatewayActor {
         String user = PortHelper.readStringMandatory(userPort);
 
         try {
-            TasksAPI restAPI = new TasksAPI(
-                    URI.create(futureGatewayUri.stringValue()));
+            TasksAPI restAPI = new TasksAPI(URI.create(getFutureGatewayUri()));
             List<Task> tasks = restAPI.getAllTasks(user);
             int size = tasks.size();
             List<RecordToken> tokens = new ArrayList<>(size);

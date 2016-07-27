@@ -25,10 +25,10 @@ public abstract class FutureGatewayActor extends LimitedFiringSource {
     /**
      * Parameter for URI of a Future Gateway instance.
      */
-    @AllowedPublicField
-    public StringParameter futureGatewayUri;
+    private StringParameter futureGatewayUri;
 
-    public FutureGatewayActor(CompositeEntity container, String name)
+    public FutureGatewayActor(final CompositeEntity container,
+                              final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
@@ -41,14 +41,13 @@ public abstract class FutureGatewayActor extends LimitedFiringSource {
         futureGatewayUri.setToken(RootAPI.LOCALHOST_ADDRESS.toString());
     }
 
-    @Override
-    public void fire() throws IllegalActionException {
-        super.fire();
-
+    protected final String getFutureGatewayUri() throws IllegalActionException {
         if (futureGatewayUriPort.getWidth() > 0 && futureGatewayUriPort
                 .hasToken(0)) {
             Token uriToken = futureGatewayUriPort.get(0);
             futureGatewayUri.setToken(uriToken);
         }
+
+        return futureGatewayUri.stringValue();
     }
 }

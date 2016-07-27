@@ -33,7 +33,7 @@ public class GetAllApplications extends FutureGatewayActor {
 
         try {
             ApplicationsAPI api = new ApplicationsAPI(
-                    URI.create(futureGatewayUri.stringValue()));
+                    URI.create(getFutureGatewayUri()));
             List<Application> applications = api.getAllApplications();
             int size = applications.size();
             List<RecordToken> tokens = new ArrayList<>(size);

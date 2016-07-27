@@ -91,8 +91,7 @@ public class UploadFiles extends FutureGatewayActor {
         task.setId(id);
 
         try {
-            TasksAPI restAPI = new TasksAPI(
-                    URI.create(futureGatewayUri.stringValue()));
+            TasksAPI restAPI = new TasksAPI(URI.create(getFutureGatewayUri()));
             List<Token> tokens = new ArrayList<>(size);
 
             for (String inputFile : inputFiles) {
