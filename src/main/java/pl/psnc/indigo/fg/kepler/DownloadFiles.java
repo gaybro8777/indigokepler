@@ -1,13 +1,11 @@
 package pl.psnc.indigo.fg.kepler;
 
-import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.OutputFile;
 import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
-import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.ArrayToken;
 import ptolemy.data.BooleanToken;
 import ptolemy.data.RecordToken;
@@ -31,7 +29,7 @@ import java.net.URI;
 @SuppressWarnings({"WeakerAccess", "PublicField",
                    "ThisEscapedInObjectConstruction",
                    "ResultOfObjectAllocationIgnored", "unused"})
-public class DownloadFiles extends LimitedFiringSource {
+public class DownloadFiles extends FutureGatewayActor {
     /**
      * A list of {@link RecordToken} with "name" and "url" describing the
      * files to be downloaded (mandatory).
@@ -53,7 +51,7 @@ public class DownloadFiles extends LimitedFiringSource {
         outputFilesPort
                 .setTypeEquals(new ArrayType(GetOutputsList.OUTPUT_FILE_TYPE));
 
-        localFolderPort = new TypedIOPort(this, "local_folder", true, false);
+        localFolderPort = new TypedIOPort(this, "localFolder", true, false);
         new SingletonAttribute(localFolderPort, "_showName");
         localFolderPort.setTypeEquals(BaseType.STRING);
 
@@ -73,7 +71,7 @@ public class DownloadFiles extends LimitedFiringSource {
             int length = outputFiles.length();
 
             try {
-                TasksAPI api = new TasksAPI(RootAPI.LOCALHOST_ADDRESS);
+                TasksAPI api = new TasksAPI(URI.create(getFutureGatewayUri()));
 
                 for (int i = 0; i < length; i++) {
                     RecordToken token = (RecordToken) outputFiles.getElement(i);

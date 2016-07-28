@@ -1,6 +1,5 @@
 package pl.psnc.indigo.fg.kepler;
 
-import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
@@ -9,9 +8,9 @@ import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.BeanTokenizer;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
-import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.ArrayToken;
 import ptolemy.data.RecordToken;
+import ptolemy.data.StringToken;
 import ptolemy.data.Token;
 import ptolemy.data.type.ArrayType;
 import ptolemy.data.type.BaseType;
@@ -21,6 +20,7 @@ import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +31,7 @@ import java.util.List;
 @SuppressWarnings({"WeakerAccess", "PublicField",
                    "ThisEscapedInObjectConstruction",
                    "ResultOfObjectAllocationIgnored", "unused"})
-public class UploadFiles extends LimitedFiringSource {
+public class UploadFiles extends FutureGatewayActor {
     /**
      * User id (mandatory).
      */
@@ -47,6 +47,11 @@ public class UploadFiles extends LimitedFiringSource {
      */
     @AllowedPublicField
     public TypedIOPort inputFilesPort;
+    /**
+     * Output port repeating task id (useful in workflow design).
+     */
+    @AllowedPublicField
+    public TypedIOPort idOutPort;
 
     public UploadFiles(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
@@ -63,6 +68,10 @@ public class UploadFiles extends LimitedFiringSource {
         inputFilesPort = new TypedIOPort(this, "inputFiles", true, false);
         new SingletonAttribute(inputFilesPort, "_showName");
         inputFilesPort.setTypeEquals(new ArrayType(BaseType.STRING));
+
+        idOutPort = new TypedIOPort(this, "idOut", false, true);
+        new SingletonAttribute(idOutPort, "_showName");
+        idOutPort.setTypeEquals(BaseType.STRING);
 
         output.setTypeEquals(BaseType.GENERAL);
     }
@@ -82,7 +91,7 @@ public class UploadFiles extends LimitedFiringSource {
         task.setId(id);
 
         try {
-            TasksAPI restAPI = new TasksAPI(RootAPI.LOCALHOST_ADDRESS);
+            TasksAPI restAPI = new TasksAPI(URI.create(getFutureGatewayUri()));
             List<Token> tokens = new ArrayList<>(size);
 
             for (String inputFile : inputFiles) {
@@ -100,6 +109,7 @@ public class UploadFiles extends LimitedFiringSource {
 
             Token[] array = tokens.toArray(new Token[size]);
             output.broadcast(new ArrayToken(array));
+            idOutPort.broadcast(new StringToken(id));
         } catch (FutureGatewayException e) {
             throw new IllegalActionException(this, e, "Failed to upload files");
         }

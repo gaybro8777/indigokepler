@@ -1,11 +1,9 @@
 package pl.psnc.indigo.fg.kepler;
 
 import pl.psnc.indigo.fg.api.restful.ApplicationsAPI;
-import pl.psnc.indigo.fg.api.restful.RootAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Application;
 import pl.psnc.indigo.fg.kepler.helper.BeanTokenizer;
-import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.ArrayToken;
 import ptolemy.data.RecordToken;
 import ptolemy.data.Token;
@@ -13,6 +11,7 @@ import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +20,7 @@ import java.util.List;
  * database. See {@link ApplicationsAPI#getAllApplications()}.
  */
 @SuppressWarnings("unused")
-public class GetAllApplications extends LimitedFiringSource {
+public class GetAllApplications extends FutureGatewayActor {
     public GetAllApplications(final CompositeEntity container,
                               final String name)
             throws NameDuplicationException, IllegalActionException {
@@ -34,7 +33,7 @@ public class GetAllApplications extends LimitedFiringSource {
 
         try {
             ApplicationsAPI api = new ApplicationsAPI(
-                    RootAPI.LOCALHOST_ADDRESS);
+                    URI.create(getFutureGatewayUri()));
             List<Application> applications = api.getAllApplications();
             int size = applications.size();
             List<RecordToken> tokens = new ArrayList<>(size);
