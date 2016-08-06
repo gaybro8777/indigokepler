@@ -71,7 +71,8 @@ public class DownloadFiles extends FutureGatewayActor {
             int length = outputFiles.length();
 
             try {
-                TasksAPI api = new TasksAPI(URI.create(getFutureGatewayUri()));
+                TasksAPI api = new TasksAPI(URI.create(getFutureGatewayUri()),
+                                            getAuthorizationToken());
 
                 for (int i = 0; i < length; i++) {
                     RecordToken token = (RecordToken) outputFiles.getElement(i);

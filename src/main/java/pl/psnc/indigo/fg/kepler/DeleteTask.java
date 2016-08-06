@@ -46,7 +46,8 @@ public class DeleteTask extends FutureGatewayActor {
         String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            TasksAPI api = new TasksAPI(URI.create(getFutureGatewayUri()));
+            TasksAPI api = new TasksAPI(URI.create(getFutureGatewayUri()),
+                                        getAuthorizationToken());
             boolean isSuccess = api.deleteTask(id);
             output.broadcast(new BooleanToken(isSuccess));
         } catch (FutureGatewayException e) {

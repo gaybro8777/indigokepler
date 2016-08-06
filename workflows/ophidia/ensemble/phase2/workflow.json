@@ -1,7 +1,7 @@
 {
     "name": "Ensemble analysis related to precipitation trend analysis",
     "author": "CMCC",
-    "abstract": "Usage: /path/precip_trend_analysis_ensemble.json 2 file1.nc|file2.nc pathscript",
+    "abstract": "Usage: /path/precip_trend_analysis_ensemble.json file1.nc|file2.nc pathscript. In particular, ${1} is the list of (OPeNDAP URLs to) NC files to be analyzed, ${2} is the path to bash scripts (work directory).",
     "exec_mode": "sync",
     "ncores": "1",
     "on_exit":"oph_delete",
@@ -56,7 +56,7 @@
                 "cwd=/",
                 "measure=precip_trend",
                 "src_path=@{name_file}",
-                "import_metadata=no",
+                "import_metadata=yes",
                 "nfrag=1",
                 "container=ensemble",
                 "grid=map"
@@ -94,14 +94,14 @@
 	{
             "name": "loop_reduce",
             "operator": "oph_for",
-            "arguments": [ "name=index2", "values=avg|min|max|var|std", "parallel=yes" ],
+            "arguments": [ "name=index", "values=avg|min|max|var|std", "parallel=yes" ],
             "dependencies": [ { "task":"merging", "type": "single" } ]
 	},
         {
             "name": "reducing",
             "operator": "oph_reduce2",
             "arguments": [
-                "operation=@index2",
+                "operation=@{index}",
                 "dim=new_dim"
             ],
             "dependencies": [
@@ -115,7 +115,9 @@
             "name": "export",
             "operator": "oph_exportnc2",
             "arguments": [
-                "output_name=@index2"
+		"force=yes",
+            	"misc=yes",
+                "output_name=@{index}"
             ],
             "dependencies": [
                 {
@@ -125,29 +127,15 @@
             ]
         },
         {
-            "name": "export_path",
-            "operator": "oph_set",
-            "arguments": [
-                "name=mia_var",
-                "value=Output File"
-            ],
-            "dependencies": [
-                {
-                    "task": "export",
-                    "type": "single"
-                }
-            ]
-        },
-        {
             "name": "Post",
             "operator": "oph_script",
             "arguments": [
-                "script=$2/precip_trend_analysis_ensemble.sh",
-                "args=@mia_var"
+                "script=${2}/precip_trend_analysis_ensemble.sh",
+                "args=${2} @{index}"
             ],
             "dependencies": [
                 {
-                    "task": "export_path"
+                    "task": "export"
                 } 
             ]
         },
@@ -155,7 +143,7 @@
             "name": "End loop_reduce",
             "operator": "oph_endfor",
             "arguments": [ ],
-            "dependencies": [ { "task":"Post", "type": "all"} ]
+            "dependencies": [ { "task":"Post" } ]
         },
         {
             "name": "Delete all cubes",
