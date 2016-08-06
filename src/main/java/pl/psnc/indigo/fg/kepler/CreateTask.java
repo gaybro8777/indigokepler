@@ -129,7 +129,8 @@ public class CreateTask extends FutureGatewayActor {
         task.setOutputFiles(outputFiles);
 
         try {
-            TasksAPI api = new TasksAPI(URI.create(getFutureGatewayUri()));
+            TasksAPI api = new TasksAPI(URI.create(getFutureGatewayUri()),
+                                        getAuthorizationToken());
             task = api.createTask(task);
             String id = task.getId();
             output.send(0, new StringToken(id));
