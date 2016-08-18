@@ -1,6 +1,16 @@
-# indigokepler
-Thi contains actors for Indigo project
+# Kepler
+The Kepler Project is dedicated to furthering and supporting the capabilities, use, and awareness of the free and open source, scientific workflow application - Kepler. Kepler is designed to help scientists, analysts, and computer programmers create, execute, and share models and analyses across a broad range of scientific and engineering disciplines.
 
+Each, individual, action inside Kepler is realised by so called - actors. Each actor provides functionality implemented by developer. It can be treated as black box. It reads inputs, performs calculations, and produce output.
+
+# indigokepler
+indigokepler provides set of actors that can be imported into Kepler. These actors provide access to Future Gateway. This way, Kepler users are able to access resources provided by Indigo-DC infrastructure. Actors developed in this project encapsulate Java based API for Future Gateway. It is developed in parallel. Java based API is developed in separate project: indigoclient.
+
+Once imported to Kepler, Indigo-DC based actors provide components that allow building workflows that run on top of Indigo-DC infrastructure.
+
+You can take a look at live demo of Kepler with Indigo-DC actors at following link: [demo](https://youtu.be/wiLHBdxu86E)
+
+# How to build Indigo-DC actors
 You need to build indigoclient before you can proceed with building indigokepler project.
 
 Make sure to take a look at:
