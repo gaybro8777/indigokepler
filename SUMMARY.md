@@ -1,5 +1,5 @@
 # Summary
 
 * [Introduction](README.md)
-* Actors
+* [Actors](docs/actors.md)
 
