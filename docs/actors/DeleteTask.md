@@ -5,7 +5,6 @@ Removes task from Future Gateway's list of tasks
 ## DeleteTask
 
 ![DeleteTask](DeleteTask.png)
-
 ### Inputs
 
 * trigger - this port can be used to control execution of the actor
