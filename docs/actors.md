@@ -10,9 +10,6 @@ Each actor reads numerous inputs (e.g. numbers, strings, authorization tokens) a
 * [Getting applications lists](docs/actors/GetAllApplications.md)
 * [Getting application](docs/actors/GetApplication.md)
 * [Getting tasks list](docs/actors/GetAllTasks.md)
-* [Getting tasks list](docs/actors/GetAllTasks.md)
-* 
-* [Create task](CreateTask.md)
 * [Create task](docs/actors/CreateTask.md)
 * [Delete task](docs/actors/DeleteTask.md)
 * [Get task](docs/actors/GetTask.md)
