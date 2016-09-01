@@ -13,4 +13,5 @@
        * [Download files](docs/actors/DownloadFiles.md)
        * [Composite actors](docs/actors/CompositeActors.md)
    * [Building workflows](docs/BuildingWorkflows.md)
+   * Developing actors
 
