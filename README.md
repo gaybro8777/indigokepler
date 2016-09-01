@@ -22,6 +22,10 @@ All actors available via indigokepler project are described in chapter [Actors](
 
 Information regarding building workflows can be found in chapter [Building workflows](docs/BuildingWorkflows.md)
 
+# Bulding your own actors
+
+Building your own actor is both simple and complex at the same time. Once you get familiar with the procedure it's quite easy to create new actor. In chapter [Developing actors](docs/DevelopingActors.md) we provide some basic information on how to create custom, Java based, actor for Kepler.
+
 # How to build Indigo-DC actors
 You need to build indigoclient before you can proceed with building indigokepler project.
 
