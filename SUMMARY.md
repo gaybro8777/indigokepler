@@ -10,5 +10,5 @@
    * [Get task](docs/actors/GetTask.md)
    * [Get outputs list](docs/actors/GetOutputsList.md)
    * [Upload files](docs/actors/UploadFiles.md)
-   * Download files
+   * [Download files](docs/actors/DownloadFiles.md)
 
