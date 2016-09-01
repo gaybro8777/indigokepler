@@ -2,7 +2,7 @@
 
 * [Introduction](README.md)
 * [Actors](docs/actors.md)
-   * [Getting applications list](docs/getting_applications_list.md)
+   * [Getting applications list](docs/actors/GetAllApplications.md)
    * [Get application](docs/actors/GetApplication.md)
    * [Getting tasks list](docs/actors/GetAllTasks.md)
    * [Create task](docs/actors/CreateTask.md)
