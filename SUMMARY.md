@@ -8,4 +8,5 @@
    * [Delete task](docs/actors/DeleteTask.md)
    * [Get task](docs/actors/GetTask.md)
    * [Get outputs list](docs/actors/GetOutputsList.md)
+   * Get application
 
