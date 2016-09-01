@@ -3,7 +3,7 @@
 * [Introduction](README.md)
 * [Actors](docs/actors.md)
    * [Getting applications list](docs/getting_applications_list.md)
-   * Get application
+   * [Get application](docs/actors/GetApplication.md)
    * [Getting tasks list](docs/actors/GetAllTasks.md)
    * [Create task](docs/actors/CreateTask.md)
    * [Delete task](docs/actors/DeleteTask.md)
