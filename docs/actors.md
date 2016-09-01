@@ -7,6 +7,7 @@ Each actor reads numerous inputs (e.g. numbers, strings, authorization tokens) a
 
 ## List of actors
 
-* [GetAllApplications](docs/actors/getting_
+* [GetAllApplications](docs/actors/GetAllApplications.md)
+* 
 
 
