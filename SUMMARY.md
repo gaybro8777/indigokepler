@@ -6,5 +6,5 @@
    * [Getting tasks list](docs/actors/GetAllTasks.md)
    * [Create task](docs/actors/CreateTask.md)
    * [Delete task](docs/actors/DeleteTask.md)
-   * Get task
+   * [Get task](docs/actors/GetTask.md)
 
