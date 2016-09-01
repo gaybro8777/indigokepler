@@ -1,6 +1,7 @@
 # Summary
 
 * [Introduction](README.md)
+   * Building workflows
    * [Actors](docs/actors.md)
        * [Getting applications list](docs/actors/GetAllApplications.md)
        * [Get application](docs/actors/GetApplication.md)
@@ -11,5 +12,4 @@
        * [Get outputs list](docs/actors/GetOutputsList.md)
        * [Upload files](docs/actors/UploadFiles.md)
        * [Download files](docs/actors/DownloadFiles.md)
-   * Building workflows
 
