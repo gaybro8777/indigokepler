@@ -11,5 +11,6 @@
        * [Get outputs list](docs/actors/GetOutputsList.md)
        * [Upload files](docs/actors/UploadFiles.md)
        * [Download files](docs/actors/DownloadFiles.md)
+       * Composite actors
    * [Building workflows](docs/BuildingWorkflows.md)
 
