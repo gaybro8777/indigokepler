@@ -16,4 +16,5 @@ Each actor reads numerous inputs (e.g. numbers, strings, authorization tokens) a
 * [Get outputs list](actors/GetOutputsList.md)
 * [Upload files](actors/UploadFiles.md)
 * [Download files](actors/DownloadFiles.md)
+* [Composite actors](actors/CompositeActors.md)
 
