@@ -3,4 +3,5 @@
 * [Introduction](README.md)
 * [Actors](docs/actors.md)
    * [Getting applications list](docs/getting_applications_list.md)
+   * Getting tasks list
 
