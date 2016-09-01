@@ -1,0 +1,2 @@
+# Getting applications list
+
