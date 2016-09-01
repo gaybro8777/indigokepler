@@ -16,6 +16,10 @@ You can take a look at live demo of Kepler with Indigo-DC actors at following li
 
 All actors available via indigokepler project are described in chapter [Actors](docs/actors.md)
 
+# Workflows
+
+Information regarding building workflows can be found in chapter [Building workflows](docs/BuildingWorkflows.md)
+
 # How to build Indigo-DC actors
 You need to build indigoclient before you can proceed with building indigokepler project.
 
