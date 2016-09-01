@@ -7,7 +7,8 @@ Each, individual, action inside Kepler is realised by so called - actors. Each a
 # indigokepler
 indigokepler provides set of actors that can be imported into Kepler. These actors provide access to Future Gateway. This way, Kepler users are able to access resources provided by Indigo-DC infrastructure. Actors developed in this project encapsulate Java based API for Future Gateway. It is developed in parallel. Java based API is developed in separate project&nbsp;[indigoclient](https://www.gitbook.com/book/indigo-dc/indigoclient).
 
-![](indigoclient.png)
+  ![](indigoclient.png)
+
 
 Once imported to Kepler, Indigo-DC based actors provide components that allow building workflows that run on top of Indigo-DC infrastructure.
 
