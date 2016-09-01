@@ -4,3 +4,9 @@ Each actor inside Kepler workflow represents single action performed by the acto
 
 Each actor reads numerous inputs (e.g. numbers, strings, authorization tokens) and based on inputs performs call to Web Service method available at Future Gateway Server.
 
+
+## List of actors
+
+* [GetAllApplications](docs/actors/getting_
+
+
