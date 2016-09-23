@@ -1,1 +1,0 @@
-193.204.199.174 11732 http://193.204.199.174:8080/thredds/dodsC/indigo/precip_trend_input/273409812436228983341469614974357020/115/precip_trend_analysis.nc?115#2176|http://193.204.199.174:8080/thredds/dodsC/indigo/precip_trend_input/273409812436228983341469614974357020/116/precip_trend_analysis.nc?116#2186

@@ -87,7 +87,8 @@ public class ParseOutputJson extends LimitedFiringSource {
         String sessionCode = map.get(ParseOutputJson.SESSION_CODE);
         String workflowId = map.get(ParseOutputJson.WORKFLOW);
         URI uri = UriBuilder.fromUri(map.get(ParseOutputJson.JOB_ID))
-                            .replacePath("").port(ParseOutputJson.DEFAULT_PORT)
+                            .replacePath("").replaceQuery("")
+                            .port(ParseOutputJson.DEFAULT_PORT)
                             .path("/thredds/dodsC/indigo/precip_trend_input/")
                             .path(sessionCode).path(workflowId)
                             .path("precip_trend_analysis.nc").build();
