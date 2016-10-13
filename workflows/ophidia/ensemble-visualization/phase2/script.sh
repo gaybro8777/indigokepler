@@ -12,6 +12,10 @@ unset arguments[1]
 oph_term -u "$user" -p "$pass" -H "$host" -P "$port" -e "./workflow.json ${arguments[@]}" -j > output.json
 
 curl https://raw.githubusercontent.com/tzok/ENES-portlet/develop/src/utils/ophidia_helper.py -o ophidia_helper.py
-python2 ophidia_helper.py output.json 'Post (5)' oph-credentials.txt avg.png out.png
+python2 ophidia_helper.py output.json 'Post (5)' oph-credentials.txt avg.png avg.png
+python2 ophidia_helper.py output.json 'Post (5)' oph-credentials.txt min.png min.png
+python2 ophidia_helper.py output.json 'Post (5)' oph-credentials.txt max.png max.png
+python2 ophidia_helper.py output.json 'Post (5)' oph-credentials.txt var.png var.png
+python2 ophidia_helper.py output.json 'Post (5)' oph-credentials.txt std.png std.png
 
 echo 'Finished!'
