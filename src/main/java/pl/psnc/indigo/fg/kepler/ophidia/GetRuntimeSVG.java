@@ -7,6 +7,7 @@ import pl.psnc.indigo.fg.api.restful.jaxb.RuntimeData;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 import pl.psnc.indigo.fg.kepler.FutureGatewayActor;
 import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
+import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.data.BooleanToken;
@@ -18,6 +19,7 @@ import ptolemy.kernel.util.NameDuplicationException;
 import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 
 /**
@@ -26,11 +28,6 @@ import java.net.URI;
  */
 public class GetRuntimeSVG extends FutureGatewayActor {
     private static final String SVG = "svg";
-    private static final String EMPTY_SVG =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
-            + "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\"\n"
-            + "   viewBox=\"0 0 500 500\" width=\"500\" height=\"500\">\n"
-            + "</svg>";
 
     /**
      * Task id (mandatory).
@@ -47,26 +44,30 @@ public class GetRuntimeSVG extends FutureGatewayActor {
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
-        idPort = new TypedIOPort(this, "id", true, false);
+        idPort = new TypedIOPort(this, "id", true, false); //NON-NLS
         idPort.setTypeEquals(BaseType.STRING);
 
-        outputPathPort = new TypedIOPort(this, "outputPath", true, false);
+        outputPathPort =
+                new TypedIOPort(this, "outputPath", true, false); //NON-NLS
         outputPathPort.setTypeEquals(BaseType.STRING);
 
         output.setTypeEquals(BaseType.BOOLEAN);
+
+        PortHelper.makePortNameVisible(idPort, outputPathPort, output);
     }
 
     @Override
-    public void fire() throws IllegalActionException {
+    public final void fire() throws IllegalActionException {
         super.fire();
 
         String id = PortHelper.readStringMandatory(idPort);
-        File outputFile = new File(
-                PortHelper.readStringMandatory(outputPathPort));
+        File outputFile =
+                new File(PortHelper.readStringMandatory(outputPathPort));
 
         try {
-            TasksAPI api = new TasksAPI(URI.create(getFutureGatewayUri()),
-                                        getAuthorizationToken());
+            String uri = getFutureGatewayUri();
+            String token = getAuthorizationToken();
+            TasksAPI api = new TasksAPI(URI.create(uri), token);
             Task task = api.getTask(id);
 
             for (final RuntimeData runtimeData : task.getRuntimeData()) {
@@ -79,11 +80,13 @@ public class GetRuntimeSVG extends FutureGatewayActor {
                 }
             }
 
-            FileUtils.write(outputFile, GetRuntimeSVG.EMPTY_SVG, "UTF-8");
+            InputStream stream = GetRuntimeSVG.class
+                    .getResourceAsStream("empty.svg"); //NON-NLS
+            FileUtils.copyInputStreamToFile(stream, outputFile);
             output.broadcast(new BooleanToken(false));
         } catch (FutureGatewayException | IOException e) {
-            throw new IllegalActionException(this, e,
-                                             "Failed to get runtime SVG");
+            String message = Messages.getString("failed.to.get.runtime.svg");
+            throw new IllegalActionException(this, e, message);
         }
     }
 }

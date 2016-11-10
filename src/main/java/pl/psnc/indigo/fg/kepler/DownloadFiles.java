@@ -4,6 +4,7 @@ import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.OutputFile;
 import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
+import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.data.ArrayToken;
@@ -15,30 +16,24 @@ import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
-import ptolemy.kernel.util.SingletonAttribute;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 
 /**
- * Download task's output files into a local directory. See
- * {@link TasksAPI#downloadOutputFile(OutputFile, File)}.
+ * Download task's output files into a local directory. See {@link
+ * TasksAPI#downloadOutputFile(OutputFile, File)}.
  */
-@SuppressWarnings({"WeakerAccess", "PublicField",
-                   "ThisEscapedInObjectConstruction",
-                   "ResultOfObjectAllocationIgnored", "unused"})
 public class DownloadFiles extends FutureGatewayActor {
     /**
-     * A list of {@link RecordToken} with "name" and "url" describing the
-     * files to be downloaded (mandatory).
+     * A list of {@link RecordToken} with "name" and "url" describing the files
+     * to be downloaded (mandatory).
      */
     @AllowedPublicField
     public TypedIOPort outputFilesPort;
-    /**
-     * A local directory where files will be downloaded (mandatory).
-     */
+
+    /** A local directory where files will be downloaded (mandatory). */
     @AllowedPublicField
     public TypedIOPort localFolderPort;
 
@@ -46,54 +41,58 @@ public class DownloadFiles extends FutureGatewayActor {
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
-        outputFilesPort = new TypedIOPort(this, "outputFiles", true, false);
-        new SingletonAttribute(outputFilesPort, "_showName");
+        outputFilesPort =
+                new TypedIOPort(this, "outputFiles", true, false); //NON-NLS
         outputFilesPort
                 .setTypeEquals(new ArrayType(GetOutputsList.OUTPUT_FILE_TYPE));
 
-        localFolderPort = new TypedIOPort(this, "localFolder", true, false);
-        new SingletonAttribute(localFolderPort, "_showName");
+        localFolderPort =
+                new TypedIOPort(this, "localFolder", true, false); //NON-NLS
         localFolderPort.setTypeEquals(BaseType.STRING);
 
         output.setTypeEquals(BaseType.BOOLEAN);
+
+        PortHelper
+                .makePortNameVisible(outputFilesPort, localFolderPort, output);
     }
 
     @Override
     public final void fire() throws IllegalActionException {
         super.fire();
 
-        String localFolderPath = PortHelper
-                .readStringMandatory(localFolderPort);
-        File localFolder = new File(localFolderPath);
+        String localFolderPath =
+                PortHelper.readStringMandatory(localFolderPort);
 
         if (outputFilesPort.getWidth() > 0) {
             ArrayToken outputFiles = (ArrayToken) outputFilesPort.get(0);
             int length = outputFiles.length();
 
             try {
-                TasksAPI api = new TasksAPI(URI.create(getFutureGatewayUri()),
-                                            getAuthorizationToken());
+                String uri = getFutureGatewayUri();
+                String token = getAuthorizationToken();
+                TasksAPI api = new TasksAPI(URI.create(uri), token);
 
+                File localFolder = new File(localFolderPath);
                 for (int i = 0; i < length; i++) {
-                    RecordToken token = (RecordToken) outputFiles.getElement(i);
-                    StringToken nameToken = (StringToken) token.get("name");
-                    StringToken urlToken = (StringToken) token.get("url");
+                    RecordToken record =
+                            (RecordToken) outputFiles.getElement(i);
+                    StringToken nameToken = (StringToken) record.get("name");
+                    StringToken urlToken = (StringToken) record.get("url");
 
                     String name = nameToken.stringValue();
                     String url = urlToken.stringValue();
-                    URI uri = UriBuilder.fromUri(url).build();
+                    URI outputUri = UriBuilder.fromUri(url).build();
 
                     OutputFile outputFile = new OutputFile();
                     outputFile.setName(name);
-                    outputFile.setUrl(uri);
+                    outputFile.setUrl(outputUri);
 
                     api.downloadOutputFile(outputFile, localFolder);
                 }
-            } catch (FutureGatewayException | IOException e) {
-                throw new IllegalActionException(this, e, "Failed to download "
-                                                          + "files");
+            } catch (final FutureGatewayException e) {
+                String message = Messages.getString("failed.to.download.files");
+                throw new IllegalActionException(this, e, message);
             }
-
         }
 
         output.send(0, new BooleanToken(true));

@@ -6,6 +6,7 @@ import pl.psnc.indigo.fg.api.restful.jaxb.InputFile;
 import pl.psnc.indigo.fg.api.restful.jaxb.OutputFile;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
+import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.data.StringToken;
@@ -14,7 +15,6 @@ import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
-import ptolemy.kernel.util.SingletonAttribute;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -24,9 +24,6 @@ import java.util.List;
  * An actor which submits a new task using Future Gateway. See:
  * {@link TasksAPI#createTask(Task)}
  */
-@SuppressWarnings({"WeakerAccess", "PublicField",
-                   "ThisEscapedInObjectConstruction",
-                   "ResultOfObjectAllocationIgnored"})
 public class CreateTask extends FutureGatewayActor {
     /**
      * User name (mandatory).
@@ -63,31 +60,35 @@ public class CreateTask extends FutureGatewayActor {
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
-        userPort = new TypedIOPort(this, "user", true, false);
-        new SingletonAttribute(userPort, "_showName");
+        userPort = new TypedIOPort(this, "user", true, false); //NON-NLS
         userPort.setTypeEquals(BaseType.STRING);
 
-        applicationPort = new TypedIOPort(this, "application", true, false);
-        new SingletonAttribute(applicationPort, "_showName");
+        applicationPort =
+                new TypedIOPort(this, "application", true, false); //NON-NLS
         applicationPort.setTypeEquals(BaseType.STRING);
 
-        descriptionPort = new TypedIOPort(this, "description", true, false);
-        new SingletonAttribute(descriptionPort, "_showName");
+        descriptionPort =
+                new TypedIOPort(this, "description", true, false); //NON-NLS
         descriptionPort.setTypeEquals(BaseType.STRING);
 
-        argumentsPort = new TypedIOPort(this, "arguments", true, false);
-        new SingletonAttribute(argumentsPort, "_showName");
+        argumentsPort =
+                new TypedIOPort(this, "arguments", true, false); //NON-NLS
         argumentsPort.setTypeEquals(new ArrayType(BaseType.STRING));
 
-        inputFilesPort = new TypedIOPort(this, "input_files", true, false);
-        new SingletonAttribute(inputFilesPort, "_showName");
+        inputFilesPort =
+                new TypedIOPort(this, "input_files", true, false); //NON-NLS
         inputFilesPort.setTypeEquals(new ArrayType(BaseType.STRING));
 
-        outputFilesPort = new TypedIOPort(this, "output_files", true, false);
-        new SingletonAttribute(outputFilesPort, "_showName");
+        outputFilesPort =
+                new TypedIOPort(this, "output_files", true, false); //NON-NLS
         outputFilesPort.setTypeEquals(new ArrayType(BaseType.STRING));
 
         output.setTypeEquals(BaseType.STRING);
+
+        PortHelper
+                .makePortNameVisible(userPort, applicationPort, descriptionPort,
+                                     argumentsPort, inputFilesPort,
+                                     outputFilesPort, output);
     }
 
     @Override
@@ -97,24 +98,25 @@ public class CreateTask extends FutureGatewayActor {
         String user = PortHelper.readStringMandatory(userPort);
         String application = PortHelper.readStringMandatory(applicationPort);
         String description = PortHelper.readStringOptional(descriptionPort);
-        List<String> arguments = PortHelper
-                .readStringArrayOptional(argumentsPort);
-        List<String> inputFileNames = PortHelper
-                .readStringArrayOptional(inputFilesPort);
-        List<String> outputFileNames = PortHelper
-                .readStringArrayOptional(outputFilesPort);
+        List<String> arguments =
+                PortHelper.readStringArrayOptional(argumentsPort);
+        List<String> inputFileNames =
+                PortHelper.readStringArrayOptional(inputFilesPort);
+        List<String> outputFileNames =
+                PortHelper.readStringArrayOptional(outputFilesPort);
 
         int inputSize = inputFileNames.size();
         int outputSize = outputFileNames.size();
-        List<InputFile> inputFiles = new ArrayList<>(inputSize);
-        List<OutputFile> outputFiles = new ArrayList<>(outputSize);
 
-        for (String fileName : inputFileNames) {
+        List<InputFile> inputFiles = new ArrayList<>(inputSize);
+        for (final String fileName : inputFileNames) {
             InputFile inputFile = new InputFile();
             inputFile.setName(fileName);
             inputFiles.add(inputFile);
         }
-        for (String fileName : outputFileNames) {
+
+        List<OutputFile> outputFiles = new ArrayList<>(outputSize);
+        for (final String fileName : outputFileNames) {
             OutputFile outputFile = new OutputFile();
             outputFile.setName(fileName);
             outputFiles.add(outputFile);
@@ -129,13 +131,16 @@ public class CreateTask extends FutureGatewayActor {
         task.setOutputFiles(outputFiles);
 
         try {
-            TasksAPI api = new TasksAPI(URI.create(getFutureGatewayUri()),
-                                        getAuthorizationToken());
+            String uri = getFutureGatewayUri();
+            String token = getAuthorizationToken();
+            TasksAPI api = new TasksAPI(URI.create(uri), token);
+
             task = api.createTask(task);
             String id = task.getId();
             output.send(0, new StringToken(id));
-        } catch (FutureGatewayException e) {
-            throw new IllegalActionException(this, e, "Failed to create task");
+        } catch (final FutureGatewayException e) {
+            throw new IllegalActionException(this, e, Messages.getString(
+                    "failed.to.create.task"));
         }
     }
 }
