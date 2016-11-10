@@ -7,7 +7,7 @@ import java.util.ResourceBundle;
  */
 public final class Messages {
     private static final ResourceBundle RESOURCE_BUNDLE =
-            ResourceBundle.getBundle("messages"); //NON-NLS
+            ResourceBundle.getBundle("kepler-messages"); //NON-NLS
 
     public static String getString(final String s) {
         return Messages.RESOURCE_BUNDLE.getString(s);
