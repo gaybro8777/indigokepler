@@ -14,7 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * A helper, utility class to convert from bean to Kepler's record tokens.
@@ -36,7 +35,7 @@ public final class BeanTokenizer {
             int size = objectMap.size();
             Map<String, Token> tokenMap = new HashMap<>(size);
 
-            for (Entry<String, Object> entry : objectMap.entrySet()) {
+            for (final Map.Entry<String, Object> entry : objectMap.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 Token token = BeanTokenizer.asToken(value);
@@ -44,11 +43,13 @@ public final class BeanTokenizer {
             }
 
             return new RecordToken(tokenMap);
-        } catch (IllegalAccessException | InvocationTargetException
-                | NoSuchMethodException e) {
-            throw new IllegalActionException(null, e,
-                                             "Failed to convert a bean to a "
-                                             + "record token");
+        } catch (
+            // @formatter:off
+                final NoSuchMethodException
+                        | IllegalAccessException
+                        | InvocationTargetException e) { // @formatter:on
+            throw new IllegalActionException(null, e, Messages.getString(
+                    "failed.to.convert.a.bean.to.a.record.token"));
         }
     }
 
@@ -61,8 +62,8 @@ public final class BeanTokenizer {
      *
      * @param object An object to be converted.
      * @return A {@link Token} made out of the object.
-     * @throws IllegalActionException If the object is a bean and its
-     *                                recursive processing ends in error.
+     * @throws IllegalActionException If the object is a bean and its recursive
+     *                                processing ends in error.
      */
     private static Token asToken(final Object object)
             throws IllegalActionException {
@@ -90,5 +91,6 @@ public final class BeanTokenizer {
     }
 
     private BeanTokenizer() {
+        super();
     }
 }

@@ -4,6 +4,7 @@ import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.OutputFile;
 import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
+import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.data.ArrayToken;
@@ -16,26 +17,23 @@ import ptolemy.data.type.Type;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
-import ptolemy.kernel.util.SingletonAttribute;
 
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.List;
 
 /**
  * Actor which retrieves task's output files and sends them in a
- * {@link RecordToken}. See {@link TasksAPI#getOutputsForTask(String)}.
+ * {@link RecordToken}.
  */
-@SuppressWarnings({"WeakerAccess", "PublicField",
-                   "ThisEscapedInObjectConstruction",
-                   "ResultOfObjectAllocationIgnored", "unused"})
 public class GetOutputsList extends FutureGatewayActor {
     private static final String[] LABELS = {"url", "name"};
     private static final Type[] TYPES = {BaseType.STRING, BaseType.STRING};
     /**
      * A {@link Type} of token produced by this actor.
      */
-    public static final Type OUTPUT_FILE_TYPE = new RecordType(
-            GetOutputsList.LABELS, GetOutputsList.TYPES);
+    public static final Type OUTPUT_FILE_TYPE =
+            new RecordType(GetOutputsList.LABELS, GetOutputsList.TYPES);
 
     /**
      * Task id (mandatory).
@@ -47,11 +45,12 @@ public class GetOutputsList extends FutureGatewayActor {
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
-        idPort = new TypedIOPort(this, "id", true, false);
-        new SingletonAttribute(idPort, "_showName");
+        idPort = new TypedIOPort(this, "id", true, false); //NON-NLS
         idPort.setTypeEquals(BaseType.STRING);
 
         output.setTypeEquals(new ArrayType(GetOutputsList.OUTPUT_FILE_TYPE));
+
+        PortHelper.makePortNameVisible(idPort, output);
     }
 
     @Override
@@ -61,10 +60,11 @@ public class GetOutputsList extends FutureGatewayActor {
         String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            TasksAPI restAPI = new TasksAPI(URI.create(getFutureGatewayUri()),
-                                            getAuthorizationToken());
+            String uri = getFutureGatewayUri();
+            String token = getAuthorizationToken();
+            TasksAPI restAPI = new TasksAPI(URI.create(uri), token);
 
-            List<OutputFile> files = restAPI.getOutputsForTask(id);
+            List<OutputFile> files = restAPI.getTask(id).getOutputFiles();
             RecordToken[] tokens = new RecordToken[files.size()];
 
             for (int i = 0; i < files.size(); i++) {
@@ -79,9 +79,11 @@ public class GetOutputsList extends FutureGatewayActor {
 
             output.broadcast(
                     new ArrayToken(GetOutputsList.OUTPUT_FILE_TYPE, tokens));
-        } catch (FutureGatewayException e) {
-            throw new IllegalActionException(this, e,
-                                             "Failed to get output list");
+        } catch (final FutureGatewayException e) {
+            String message =
+                    Messages.getString("failed.to.get.output.files.for.task.0");
+            message = MessageFormat.format(message, id);
+            throw new IllegalActionException(this, e, message);
         }
     }
 }

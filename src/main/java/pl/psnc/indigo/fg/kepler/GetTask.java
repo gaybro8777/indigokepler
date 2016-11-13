@@ -4,6 +4,7 @@ import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
+import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.data.StringToken;
@@ -11,22 +12,20 @@ import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
-import ptolemy.kernel.util.SingletonAttribute;
 
 import java.net.URI;
+import java.text.MessageFormat;
 
 /**
  * Actor which gets status of a task. See {@link TasksAPI#getTask(String)}.
  */
-@SuppressWarnings({"WeakerAccess", "PublicField",
-                   "ThisEscapedInObjectConstruction",
-                   "ResultOfObjectAllocationIgnored", "unused"})
 public class GetTask extends FutureGatewayActor {
     /**
      * Task id (mandatory).
      */
     @AllowedPublicField
     public TypedIOPort idPort;
+
     /**
      * Output port which will receive task's status.
      */
@@ -37,17 +36,16 @@ public class GetTask extends FutureGatewayActor {
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
-        idPort = new TypedIOPort(this, "id", true, false);
-        new SingletonAttribute(idPort, "_showName");
+        idPort = new TypedIOPort(this, "id", true, false); //NON-NLS
         idPort.setTypeEquals(BaseType.STRING);
 
-        statusPort = new TypedIOPort(this, "status", false, true);
-        new SingletonAttribute(statusPort, "_showName");
+        statusPort = new TypedIOPort(this, "status", false, true); //NON-NLS
         statusPort.setTypeEquals(BaseType.STRING);
 
-        output.setName("idOut");
-        new SingletonAttribute(output, "_showName");
+        output.setName("idOut"); //NON-NLS
         output.setTypeEquals(BaseType.STRING);
+
+        PortHelper.makePortNameVisible(idPort, statusPort, output);
     }
 
     @Override
@@ -57,15 +55,20 @@ public class GetTask extends FutureGatewayActor {
         String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            TasksAPI restAPI = new TasksAPI(URI.create(getFutureGatewayUri()),
-                                            getAuthorizationToken());
-            Task task = restAPI.getTask(id);
+            String uri = getFutureGatewayUri();
+            String token = getAuthorizationToken();
+            TasksAPI api = new TasksAPI(URI.create(uri), token);
+
+            Task task = api.getTask(id);
             String status = task.getStatus().name();
 
             output.send(0, new StringToken(id));
             statusPort.send(0, new StringToken(status));
-        } catch (FutureGatewayException e) {
-            throw new IllegalActionException(this, e, "Failed to get task");
+        } catch (final FutureGatewayException e) {
+            String message =
+                    Messages.getString("failed.to.get.details.for.task.0");
+            message = MessageFormat.format(message, id);
+            throw new IllegalActionException(this, e, message);
         }
     }
 }

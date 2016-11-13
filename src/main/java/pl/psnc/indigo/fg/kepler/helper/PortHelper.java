@@ -4,7 +4,10 @@ import ptolemy.actor.TypedIOPort;
 import ptolemy.data.ArrayToken;
 import ptolemy.data.StringToken;
 import ptolemy.kernel.util.IllegalActionException;
+import ptolemy.kernel.util.NameDuplicationException;
+import ptolemy.kernel.util.SingletonAttribute;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +30,9 @@ public final class PortHelper {
         if (port.getWidth() > 0) {
             return ((StringToken) port.get(0)).stringValue();
         }
-        throw new IllegalActionException(port, "Missing data on port " + port);
+        String message = Messages.getString("missing.data.on.port.0");
+        message = MessageFormat.format(message, port);
+        throw new IllegalActionException(port, message);
     }
 
     /**
@@ -50,8 +55,8 @@ public final class PortHelper {
      * if port is empty.
      *
      * @param port Port to read data from.
-     * @return A list of strings made from {@link StringToken} inside of
-     * actor's port.
+     * @return A list of strings made from {@link StringToken} inside of actor's
+     * port.
      * @throws IllegalActionException If port is empty.
      */
     public static List<String> readStringArrayMandatory(final TypedIOPort port)
@@ -59,7 +64,8 @@ public final class PortHelper {
         if (port.getWidth() > 0) {
             return PortHelper.readStringArray(port);
         }
-        throw new IllegalActionException(port, "Missing data on port " + port);
+        throw new IllegalActionException(port, MessageFormat
+                .format(Messages.getString("missing.data.on.port.0"), port));
     }
 
     /**
@@ -67,8 +73,8 @@ public final class PortHelper {
      * if port is empty.
      *
      * @param port Port to read data from.
-     * @return A list of strings made from {@link StringToken} inside of
-     * actor's port.
+     * @return A list of strings made from {@link StringToken} inside of actor's
+     * port.
      * @throws IllegalActionException If reading from port fails.
      */
     public static List<String> readStringArrayOptional(final TypedIOPort port)
@@ -87,8 +93,8 @@ public final class PortHelper {
      * {@link PortHelper#readStringArrayOptional(TypedIOPort)}.
      *
      * @param port Port to read data from.
-     * @return A list of strings made from {@link StringToken} inside of
-     * actor's port.
+     * @return A list of strings made from {@link StringToken} inside of actor's
+     * port.
      * @throws IllegalActionException If reading from port fails.
      */
     private static List<String> readStringArray(final TypedIOPort port)
@@ -98,14 +104,33 @@ public final class PortHelper {
         List<String> stringList = new ArrayList<>(length);
 
         for (int i = 0; i < length; i++) {
-            String arrayElement = ((StringToken) tokenArray.getElement(i))
-                    .stringValue();
+            String arrayElement =
+                    ((StringToken) tokenArray.getElement(i)).stringValue();
             stringList.add(arrayElement);
         }
 
         return stringList;
     }
 
+    /**
+     * Create a singletion attribute for each given port which will make Kepler
+     * render the name of the port directly on the worfklow.
+     *
+     * @param ports Ports whose names should be visible in Kepler.
+     * @throws NameDuplicationException If the name is duplicated in Kepler
+     *                                  engine.
+     * @throws IllegalActionException   If there was a problem from Kepler
+     *                                  engine.
+     */
+    public static void makePortNameVisible(final TypedIOPort... ports)
+            throws NameDuplicationException, IllegalActionException {
+        for (final TypedIOPort port : ports) {
+            new SingletonAttribute(port, "_showName"); //NON-NLS
+        }
+    }
+
+
     private PortHelper() {
+        super();
     }
 }
