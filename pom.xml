@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>pl.psnc.indigo</groupId>
     <artifactId>indigo-fg-actors</artifactId>
-    <version>1.0.2</version>
+    <version>1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -126,6 +126,8 @@
                                 <mkdir dir="${basedir}/target/indigo/target"/>
                                 <copy file="${basedir}/target/${project.artifactId}-${project.version}.jar"
                                       tofile="${basedir}/target/indigo/target/indigo.jar"/>
+                                <copy file="${basedir}/target/classes/kepler-messages.properties"
+                                      todir="${basedir}/target/indigo/resources"/>
                             </tasks>
                         </configuration>
                     </execution>
