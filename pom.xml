@@ -159,6 +159,33 @@
                     <noDeploy>true</noDeploy>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>pl.psnc.indigo</groupId>
+                                    <artifactId>indigo-fg-api</artifactId>
+                                    <version>1.0.2</version>
+                                    <type>jar</type>
+                                    <includes>messages.properties</includes>
+                                    <outputDirectory>${basedir}/target/indigo/resources/</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <properties>
