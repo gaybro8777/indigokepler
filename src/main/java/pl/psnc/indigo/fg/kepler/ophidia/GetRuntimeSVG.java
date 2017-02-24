@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Objects;
 
 /**
  * Actor which reads runtime data of an Ophidia task and decodes the contents
@@ -71,7 +72,7 @@ public class GetRuntimeSVG extends FutureGatewayActor {
             Task task = api.getTask(id);
 
             for (final RuntimeData runtimeData : task.getRuntimeData()) {
-                if (GetRuntimeSVG.SVG.equals(runtimeData.getName())) {
+                if (Objects.equals(GetRuntimeSVG.SVG, runtimeData.getName())) {
                     byte[] svgRaw = DatatypeConverter
                             .parseBase64Binary(runtimeData.getValue());
                     FileUtils.writeByteArrayToFile(outputFile, svgRaw);

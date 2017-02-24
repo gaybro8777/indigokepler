@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>pl.psnc.indigo</groupId>
     <artifactId>indigo-fg-actors</artifactId>
-    <version>1.0.2</version>
+    <version>1.1-beta.1</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -30,6 +30,22 @@
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-swing</artifactId>
             <version>1.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.kohsuke</groupId>
+            <artifactId>github-api</artifactId>
+            <version>1.80</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -110,6 +126,8 @@
                                 <mkdir dir="${basedir}/target/indigo/target"/>
                                 <copy file="${basedir}/target/${project.artifactId}-${project.version}.jar"
                                       tofile="${basedir}/target/indigo/target/indigo.jar"/>
+                                <copy file="${basedir}/target/classes/kepler-messages.properties"
+                                      todir="${basedir}/target/indigo/resources"/>
                             </tasks>
                         </configuration>
                     </execution>
@@ -140,6 +158,33 @@
                     </flowInitContext>
                     <noDeploy>true</noDeploy>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>pl.psnc.indigo</groupId>
+                                    <artifactId>indigo-fg-api</artifactId>
+                                    <version>1.0.2</version>
+                                    <type>jar</type>
+                                    <includes>messages.properties</includes>
+                                    <outputDirectory>${basedir}/target/indigo/resources/</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
