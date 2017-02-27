@@ -2,6 +2,7 @@ indigo-fg-actors.iml
 lib/
 target/
 workflows/fg-setup-scripts/oph-term/example/oph-credentials.txt
+workflows/fg-setup-scripts/oph-term-argsfile/example/oph-credentials.txt
 workflows/ophidia/ensemble-visualization/phase1/config.json
 workflows/ophidia/ensemble-visualization/phase2/arguments.txt
 workflows/ophidia/ensemble/phase1/config.json
