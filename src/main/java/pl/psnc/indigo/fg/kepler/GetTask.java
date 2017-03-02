@@ -3,11 +3,10 @@ package pl.psnc.indigo.fg.kepler;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
-import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
+import pl.psnc.indigo.fg.kepler.helper.BeanTokenizer;
 import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
-import ptolemy.data.StringToken;
 import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
@@ -23,14 +22,7 @@ public class GetTask extends FutureGatewayActor {
     /**
      * Task id (mandatory).
      */
-    @AllowedPublicField
-    public TypedIOPort idPort;
-
-    /**
-     * Output port which will receive task's status.
-     */
-    @AllowedPublicField
-    public TypedIOPort statusPort;
+    private final TypedIOPort idPort;
 
     public GetTask(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
@@ -39,13 +31,9 @@ public class GetTask extends FutureGatewayActor {
         idPort = new TypedIOPort(this, "id", true, false); //NON-NLS
         idPort.setTypeEquals(BaseType.STRING);
 
-        statusPort = new TypedIOPort(this, "status", false, true); //NON-NLS
-        statusPort.setTypeEquals(BaseType.STRING);
+        output.setTypeEquals(BeanTokenizer.getRecordType(Task.class));
 
-        output.setName("idOut"); //NON-NLS
-        output.setTypeEquals(BaseType.STRING);
-
-        PortHelper.makePortNameVisible(idPort, statusPort, output);
+        PortHelper.makePortNameVisible(idPort, output);
     }
 
     @Override
@@ -60,10 +48,7 @@ public class GetTask extends FutureGatewayActor {
             TasksAPI api = new TasksAPI(URI.create(uri), token);
 
             Task task = api.getTask(id);
-            String status = task.getStatus().name();
-
-            output.send(0, new StringToken(id));
-            statusPort.send(0, new StringToken(status));
+            output.broadcast(BeanTokenizer.convert(task));
         } catch (final FutureGatewayException e) {
             String message =
                     Messages.getString("failed.to.get.details.for.task.0");

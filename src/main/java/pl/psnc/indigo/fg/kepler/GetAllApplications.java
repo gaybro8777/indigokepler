@@ -9,6 +9,7 @@ import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.data.ArrayToken;
 import ptolemy.data.RecordToken;
 import ptolemy.data.Token;
+import ptolemy.data.type.ArrayType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
@@ -27,6 +28,8 @@ public class GetAllApplications extends FutureGatewayActor {
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
+        output.setTypeEquals(
+                new ArrayType(BeanTokenizer.getRecordType(Application.class)));
         PortHelper.makePortNameVisible(output);
     }
 

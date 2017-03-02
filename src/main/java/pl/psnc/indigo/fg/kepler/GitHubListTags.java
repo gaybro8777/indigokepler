@@ -1,9 +1,10 @@
 package pl.psnc.indigo.fg.kepler;
 
-import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHTag;
 import org.kohsuke.github.GitHub;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
@@ -24,8 +25,10 @@ import java.util.List;
 /**
  * Actor which lists tags for a given GitHub repository.
  */
-@Slf4j
 public class GitHubListTags extends LimitedFiringSource {
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(GitHubListTags.class);
+
     private final TypedIOPort repositoryPort;
 
     public GitHubListTags(
@@ -46,8 +49,8 @@ public class GitHubListTags extends LimitedFiringSource {
         super.fire();
 
         String repositoryName = PortHelper.readStringMandatory(repositoryPort);
-        GitHubListTags.log.debug("Attempting to list tags for repository {}",
-                                 repositoryName);
+        GitHubListTags.LOGGER.debug("Attempting to list tags for repository {}",
+                                    repositoryName);
 
         GHRepository repository = getRepository(repositoryName);
         List<GHTag> tags = getTags(repositoryName, repository);

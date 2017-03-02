@@ -1,0 +1,47 @@
+{
+  "name": "kepler-batch",
+  "description": "Instantiates a VM with Kepler and runs a non-gui workflow on it",
+  "outcome": "JOB",
+  "enabled": true,
+  "infrastructures": [
+    {
+      "description": "TOSCA orchestrated by orchestrator01-indigo.cloud.ba.infn.it",
+      "name": "TOSCA @ orchestrator01-indigo.cloud.ba.infn.it",
+      "parameters": [
+        {
+          "name": "tosca_endpoint",
+          "value": "https://orchestrator01-indigo.cloud.ba.infn.it/orchestrator/deployments"
+        },
+        {
+          "name": "tosca_template",
+          "value": "template.yml"
+        },
+        {
+          "name": "tosca_parameters",
+          "value": "params=parameters.json"
+        }
+      ],
+      "enabled": true,
+      "virtual": false
+    }
+  ],
+  "parameters": [
+    {
+      "name": "target_executor",
+      "value": "ToscaIDC",
+      "description": ""
+    }
+  ],
+  "input_files": [
+    {
+      "override" : false,
+      "path": "",
+      "name": "template.yml"
+    },
+    {
+      "override" : false,
+      "path": "",
+      "name": "parameters.json"
+    }
+  ]
+}
