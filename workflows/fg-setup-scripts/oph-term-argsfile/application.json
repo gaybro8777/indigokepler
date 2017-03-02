@@ -1,0 +1,77 @@
+{
+  "name": "oph-term-argsfile",
+  "description": "Runs the oph-term command with arguments from a file on localhost via SSH adaptor",
+  "outcome": "JOB",
+  "enabled": true,
+  "infrastructures": [
+    {
+      "description": "SSH job executed as jobtest@localhost",
+      "name": "SSH jobtest@localhost",
+      "parameters": [
+        {
+          "name": "jobservice",
+          "value": "ssh://localhost"
+        },
+        {
+          "name": "username",
+          "value": "jobtest"
+        },
+        {
+          "name": "password",
+          "value": "VY+rwF0O1y+/"
+        }
+      ],
+      "enabled": true,
+      "virtual": false
+    }
+  ],
+  "parameters": [
+    {
+      "name": "jobdesc_executable",
+      "value": "/bin/bash",
+      "description": ""
+    },
+    {
+      "name": "jobdesc_arguments",
+      "value": "script.sh",
+      "description": ""
+    },
+    {
+      "name": "jobdesc_output",
+      "value": "stdout.txt",
+      "description": ""
+    },
+    {
+      "name": "jobdesc_error",
+      "value": "stderr.txt",
+      "description": ""
+    },
+    {
+      "name": "target_executor",
+      "value": "GridEngine",
+      "description": ""
+    }
+  ],
+  "input_files": [
+    {
+      "override": false,
+      "path": "",
+      "name": "script.sh"
+    },
+    {
+      "override": false,
+      "path": "",
+      "name": "workflow.json"
+    },
+    {
+      "override": false,
+      "path": "",
+      "name": "oph-credentials.txt"
+    },
+    {
+      "override": false,
+      "path": "",
+      "name": "arguments.txt"
+    }
+  ]
+}
