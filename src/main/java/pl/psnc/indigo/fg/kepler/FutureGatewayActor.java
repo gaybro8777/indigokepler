@@ -1,7 +1,6 @@
 package pl.psnc.indigo.fg.kepler;
 
 import pl.psnc.indigo.fg.api.restful.RootAPI;
-import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.actor.lib.LimitedFiringSource;
@@ -20,13 +19,11 @@ public class FutureGatewayActor extends LimitedFiringSource {
     /**
      * Port for URI of a Future Gateway instance.
      */
-    @AllowedPublicField
-    public TypedIOPort futureGatewayUriPort;
+    private final TypedIOPort futureGatewayUriPort;
     /**
      * Port for authorization token from the user.
      */
-    @AllowedPublicField
-    public TypedIOPort authorizationTokenPort;
+    private final TypedIOPort authorizationTokenPort;
     /**
      * Parameter for URI of a Future Gateway instance.
      */
@@ -50,10 +47,9 @@ public class FutureGatewayActor extends LimitedFiringSource {
                                 false); //NON-NLS
         authorizationTokenPort.setTypeEquals(BaseType.STRING);
 
-        String defaultUri = RootAPI.LOCALHOST_ADDRESS.toString();
         futureGatewayUri =
                 new StringParameter(this, "futureGatewayUri"); //NON-NLS
-        futureGatewayUri.setToken(defaultUri);
+        futureGatewayUri.setToken(RootAPI.LOCALHOST_ADDRESS.toString());
 
         authorizationToken =
                 new StringParameter(this, "authorizationToken"); //NON-NLS

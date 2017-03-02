@@ -22,8 +22,7 @@ public class DeleteTask extends FutureGatewayActor {
     /**
      * Task id (mandatory).
      */
-    @AllowedPublicField
-    public TypedIOPort idPort;
+    private final TypedIOPort idPort;
 
     public DeleteTask(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {

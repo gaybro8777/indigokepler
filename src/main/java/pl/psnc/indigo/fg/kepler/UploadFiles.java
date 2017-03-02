@@ -4,7 +4,6 @@ import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 import pl.psnc.indigo.fg.api.restful.jaxb.Upload;
-import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.BeanTokenizer;
 import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
@@ -33,26 +32,22 @@ public class UploadFiles extends FutureGatewayActor {
     /**
      * User id (mandatory).
      */
-    @AllowedPublicField
-    public TypedIOPort userPort;
+    private final TypedIOPort userPort;
 
     /**
      * Task id (mandatory).
      */
-    @AllowedPublicField
-    public TypedIOPort idPort;
+    private final TypedIOPort idPort;
 
     /**
      * List of input files (mandatory).
      */
-    @AllowedPublicField
-    public TypedIOPort inputFilesPort;
+    private final TypedIOPort inputFilesPort;
 
     /**
      * Output port repeating task id (useful in workflow design).
      */
-    @AllowedPublicField
-    public TypedIOPort idOutPort;
+    private final TypedIOPort idOutPort;
 
     public UploadFiles(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
@@ -70,7 +65,8 @@ public class UploadFiles extends FutureGatewayActor {
         idOutPort = new TypedIOPort(this, "idOut", false, true);
         idOutPort.setTypeEquals(BaseType.STRING);
 
-        output.setTypeEquals(BaseType.GENERAL);
+        output.setTypeEquals(
+                new ArrayType(BeanTokenizer.getRecordType(Upload.class)));
 
         PortHelper.makePortNameVisible(userPort, idPort, inputFilesPort,
                                        idOutPort, output);

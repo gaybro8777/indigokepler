@@ -3,7 +3,7 @@ package pl.psnc.indigo.fg.kepler;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.OutputFile;
-import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
+import pl.psnc.indigo.fg.kepler.helper.BeanTokenizer;
 import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
@@ -30,12 +30,10 @@ public class DownloadFiles extends FutureGatewayActor {
      * A list of {@link RecordToken} with "name" and "url" describing the files
      * to be downloaded (mandatory).
      */
-    @AllowedPublicField
-    public TypedIOPort outputFilesPort;
+    private final TypedIOPort outputFilesPort;
 
     /** A local directory where files will be downloaded (mandatory). */
-    @AllowedPublicField
-    public TypedIOPort localFolderPort;
+    private final TypedIOPort localFolderPort;
 
     public DownloadFiles(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
@@ -43,8 +41,8 @@ public class DownloadFiles extends FutureGatewayActor {
 
         outputFilesPort =
                 new TypedIOPort(this, "outputFiles", true, false); //NON-NLS
-        outputFilesPort
-                .setTypeEquals(new ArrayType(GetOutputsList.OUTPUT_FILE_TYPE));
+        outputFilesPort.setTypeEquals(
+                new ArrayType(BeanTokenizer.getRecordType(OutputFile.class)));
 
         localFolderPort =
                 new TypedIOPort(this, "localFolder", true, false); //NON-NLS
