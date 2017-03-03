@@ -167,9 +167,7 @@
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
-        <module name="VisibilityModifier">
-            <property name="ignoreAnnotationCanonicalNames" value="pl.psnc.indigo.fg.kepler.helper.AllowedPublicField"/>
-        </module>
+        <module name="VisibilityModifier"/>
 
         <!-- Miscellaneous other checks.                   -->
         <!-- See http://checkstyle.sf.net/config_misc.html -->

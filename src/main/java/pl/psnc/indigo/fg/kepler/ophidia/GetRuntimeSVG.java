@@ -6,7 +6,6 @@ import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.RuntimeData;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
 import pl.psnc.indigo.fg.kepler.FutureGatewayActor;
-import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
@@ -33,13 +32,11 @@ public class GetRuntimeSVG extends FutureGatewayActor {
     /**
      * Task id (mandatory).
      */
-    @AllowedPublicField
-    public TypedIOPort idPort;
+    private final TypedIOPort idPort;
     /**
      * Path where the SVG will be saved (mandatory).
      */
-    @AllowedPublicField
-    public TypedIOPort outputPathPort;
+    private final TypedIOPort outputPathPort;
 
     public GetRuntimeSVG(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
@@ -81,8 +78,10 @@ public class GetRuntimeSVG extends FutureGatewayActor {
                 }
             }
 
-            InputStream stream = GetRuntimeSVG.class
-                    .getResourceAsStream("empty.svg"); //NON-NLS
+            InputStream stream = GetRuntimeSVG.class.getClassLoader()
+                                                    .getResourceAsStream(
+                                                            "empty.svg");
+            //NON-NLS
             FileUtils.copyInputStreamToFile(stream, outputFile);
             output.broadcast(new BooleanToken(false));
         } catch (FutureGatewayException | IOException e) {

@@ -72,11 +72,9 @@ public class ShowSVG extends LimitedFiringSource {
     }
 
     /** A title for the window. */
-    @AllowedPublicField
-    public TypedIOPort frameIdPort;
+    private final TypedIOPort frameIdPort;
     /** Path to the SVG image. */
-    @AllowedPublicField
-    public TypedIOPort imagePathPort;
+    private final TypedIOPort imagePathPort;
 
     private final Map<String, SVGFrame> mapIdFrame = new HashMap<>();
 
