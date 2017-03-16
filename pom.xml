@@ -15,12 +15,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.ptolemy</groupId>
-            <artifactId>ptolemy</artifactId>
-            <version>2.5</version>
-        </dependency>
-
-        <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>1.9.3</version>
@@ -29,19 +23,19 @@
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-anim</artifactId>
-            <version>1.8</version>
+            <version>1.7</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-bridge</artifactId>
-            <version>1.8</version>
+            <version>1.7</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-swing</artifactId>
-            <version>1.8</version>
+            <version>1.7</version>
         </dependency>
 
         <dependency>
@@ -53,11 +47,13 @@
                     <groupId>commons-io</groupId>
                     <artifactId>commons-io</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ptolemy</groupId>
+            <artifactId>ptolemy</artifactId>
+            <version>2.5</version>
         </dependency>
 
         <dependency>
@@ -197,6 +193,18 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <excludes>
+                        <!-- we must use the same version as Kepler uses i.e. 1.7 and not 1.8 of batik -->
+                        <exclude>org.apache.xmlgraphics</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
