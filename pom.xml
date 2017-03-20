@@ -10,6 +10,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <indigoclient.version>1.1-rc1</indigoclient.version>
     </properties>
 
     <dependencies>
@@ -58,7 +59,7 @@
         <dependency>
             <groupId>pl.psnc.indigo</groupId>
             <artifactId>indigo-fg-api</artifactId>
-            <version>1.1-rc1</version>
+            <version>${indigoclient.version}</version>
         </dependency>
     </dependencies>
 
@@ -181,7 +182,7 @@
                                 <artifactItem>
                                     <groupId>pl.psnc.indigo</groupId>
                                     <artifactId>indigo-fg-api</artifactId>
-                                    <version>1.0.2</version>
+                                    <version>${indigoclient.version}</version>
                                     <type>jar</type>
                                     <includes>messages.properties</includes>
                                     <outputDirectory>${basedir}/target/indigo/resources/</outputDirectory>
