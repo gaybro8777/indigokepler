@@ -2,7 +2,9 @@ package pl.psnc.indigo.fg.kepler.ophidia;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
+import com.fasterxml.jackson.databind.node.NullNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
@@ -18,20 +20,24 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Actor to parse JSON produced by Ophidia workflow and generate URI of results.
  */
 public class ParseOutputJson extends LimitedFiringSource {
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ParseOutputJson.class);
     private static final String JOB_ID = "JobID";
     private static final String SESSION_CODE = "Session Code";
     private static final String WORKFLOW = "Workflow";
     private static final int DEFAULT_PORT = 8080;
+    private static final String[] EMPTY = new String[0];
+
     /**
      * Port to receive contents of JSON file from Ophidia.
      */
-    @AllowedPublicField
-    public TypedIOPort jsonPort;
+    private final TypedIOPort jsonPort;
 
     public ParseOutputJson(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
@@ -52,20 +58,27 @@ public class ParseOutputJson extends LimitedFiringSource {
 
         String json = PortHelper.readStringMandatory(jsonPort);
 
-        String[] keys;
-        String[] values;
+        String[] keys = ParseOutputJson.EMPTY;
+        String[] values = ParseOutputJson.EMPTY;
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(json);
-            jsonNode = jsonNode.get("response"); //NON-NLS
-            jsonNode = jsonNode.get("source"); //NON-NLS
-            keys = mapper.treeToValue(jsonNode.get("keys"),
-                                      String[].class); //NON-NLS
-            values = mapper.treeToValue(jsonNode.get("values"),
-                                        String[].class); //NON-NLS
+            jsonNode = Optional.ofNullable(jsonNode.get("response"))
+                               .orElse(NullNode.getInstance()); //NON-NLS
+            jsonNode = Optional.ofNullable(jsonNode.get("source"))
+                               .orElse(NullNode.getInstance()); //NON-NLS
+
+            if (jsonNode.hasNonNull("keys") && jsonNode.hasNonNull("values")) {
+                keys = mapper.treeToValue(jsonNode.get("keys"),
+                                          String[].class); //NON-NLS
+                values = mapper.treeToValue(jsonNode.get("values"),
+                                            String[].class); //NON-NLS
+            }
         } catch (final IOException e) {
             String message = Messages.getString("failed.to.parse.json");
-            throw new IllegalActionException(this, e, message);
+            ParseOutputJson.LOGGER.error(message, e);
+            output.broadcast(new StringToken(""));
+            return;
         }
 
         if (keys.length != values.length) {
@@ -82,9 +95,12 @@ public class ParseOutputJson extends LimitedFiringSource {
         if (!map.containsKey(ParseOutputJson.JOB_ID) || !map
                 .containsKey(ParseOutputJson.SESSION_CODE) || !map
                 .containsKey(ParseOutputJson.WORKFLOW)) {
+
             String message =
                     Messages.getString("invalid.json.lack.of.expected.keys");
-            throw new IllegalActionException(this, message);
+            ParseOutputJson.LOGGER.error(message);
+            output.broadcast(new StringToken(""));
+            return;
         }
 
         String sessionCode = map.get(ParseOutputJson.SESSION_CODE);

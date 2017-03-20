@@ -2,7 +2,6 @@ package pl.psnc.indigo.fg.kepler;
 
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
-import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
@@ -22,8 +21,7 @@ public class DeleteTask extends FutureGatewayActor {
     /**
      * Task id (mandatory).
      */
-    @AllowedPublicField
-    public TypedIOPort idPort;
+    private final TypedIOPort idPort;
 
     public DeleteTask(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {

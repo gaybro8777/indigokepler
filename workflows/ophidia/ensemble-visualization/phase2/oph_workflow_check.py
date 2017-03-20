@@ -66,7 +66,7 @@ if __name__ == "__main__":
             + ' -e "./' + workflow_name + ' ' + workflow_args + '"'
             + ' --json'],
             shell=True)
-    except (OSError, CalledProcessError):
+    except (OSError, subprocess.CalledProcessError):
         sys.exit('Unable to run workflow command')
 
     try:

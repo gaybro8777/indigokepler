@@ -5,7 +5,6 @@ import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.InputFile;
 import pl.psnc.indigo.fg.api.restful.jaxb.OutputFile;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
-import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
@@ -28,33 +27,27 @@ public class CreateTask extends FutureGatewayActor {
     /**
      * User name (mandatory).
      */
-    @AllowedPublicField
-    public TypedIOPort userPort;
+    private final TypedIOPort userPort;
     /**
      * Application id (mandatory).
      */
-    @AllowedPublicField
-    public TypedIOPort applicationPort;
+    private final TypedIOPort applicationPort;
     /**
      * Description of the task (optional).
      */
-    @AllowedPublicField
-    public TypedIOPort descriptionPort;
+    private final TypedIOPort descriptionPort;
     /**
      * Arguments of the task (optional).
      */
-    @AllowedPublicField
-    public TypedIOPort argumentsPort;
+    private final TypedIOPort argumentsPort;
     /**
      * Input files' paths (optional).
      */
-    @AllowedPublicField
-    public TypedIOPort inputFilesPort;
+    private final TypedIOPort inputFilesPort;
     /**
      * Output files' names (optional).
      */
-    @AllowedPublicField
-    public TypedIOPort outputFilesPort;
+    private final TypedIOPort outputFilesPort;
 
     public CreateTask(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {

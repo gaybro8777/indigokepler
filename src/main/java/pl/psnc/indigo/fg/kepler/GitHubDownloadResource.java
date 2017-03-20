@@ -1,7 +1,8 @@
 package pl.psnc.indigo.fg.kepler;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
@@ -22,8 +23,10 @@ import java.text.MessageFormat;
 /**
  * Actor which downloads a named resource from a GitHub repository.
  */
-@Slf4j
 public class GitHubDownloadResource extends LimitedFiringSource {
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(GitHubDownloadResource.class);
+
     private final TypedIOPort repositoryPort;
     private final TypedIOPort branchTagPort;
     private final TypedIOPort remotePathPort;
@@ -61,7 +64,8 @@ public class GitHubDownloadResource extends LimitedFiringSource {
         URI uri = UriBuilder.fromUri("https://raw.githubusercontent.com")
                             .path(repositoryName).path(branchTag)
                             .path(remotePath).build();
-        GitHubDownloadResource.log.debug("Attempting to download from {}", uri);
+        GitHubDownloadResource.LOGGER
+                .debug("Attempting to download from {}", uri);
 
         try (InputStream stream = uri.toURL().openStream()) {
             FileUtils.copyInputStreamToFile(stream, outputFile);

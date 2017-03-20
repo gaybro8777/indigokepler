@@ -6,4 +6,11 @@ host=$1
 port=$2
 shift 2
 
+# create empty output.json because if Ophidia server fails, then the workflow
+# will be able to deal with empty results but will not be able to deal with
+# '404 Not Found'
+touch output.json
+
 python2 oph_workflow_check.py -e oph_term -u "$user" -p "$pass" -H "$host" -P "$port" -w workflow.json -a "$@"
+# finish up with exit code 0 even if the Python script fails
+exit 0

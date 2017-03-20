@@ -3,7 +3,6 @@ package pl.psnc.indigo.fg.kepler;
 import pl.psnc.indigo.fg.api.restful.TasksAPI;
 import pl.psnc.indigo.fg.api.restful.exceptions.FutureGatewayException;
 import pl.psnc.indigo.fg.api.restful.jaxb.Task;
-import pl.psnc.indigo.fg.kepler.helper.AllowedPublicField;
 import pl.psnc.indigo.fg.kepler.helper.BeanTokenizer;
 import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
@@ -11,6 +10,7 @@ import ptolemy.actor.TypedIOPort;
 import ptolemy.data.ArrayToken;
 import ptolemy.data.RecordToken;
 import ptolemy.data.Token;
+import ptolemy.data.type.ArrayType;
 import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
@@ -28,8 +28,7 @@ public class GetAllTasks extends FutureGatewayActor {
     /**
      * User id (mandatory).
      */
-    @AllowedPublicField
-    public TypedIOPort userPort;
+    private final TypedIOPort userPort;
 
     public GetAllTasks(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
@@ -38,7 +37,8 @@ public class GetAllTasks extends FutureGatewayActor {
         userPort = new TypedIOPort(this, "user", true, false); //NON-NLS
         userPort.setTypeEquals(BaseType.STRING);
 
-        output.setTypeEquals(BaseType.STRING);
+        output.setTypeEquals(
+                new ArrayType(BeanTokenizer.getRecordType(Task.class)));
 
         PortHelper.makePortNameVisible(userPort, output);
     }

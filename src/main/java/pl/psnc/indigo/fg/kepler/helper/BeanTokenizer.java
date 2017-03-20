@@ -1,19 +1,32 @@
 package pl.psnc.indigo.fg.kepler.helper;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import pl.psnc.indigo.fg.api.restful.jaxb.FutureGatewayBean;
+import ptolemy.data.ArrayToken;
 import ptolemy.data.BooleanToken;
 import ptolemy.data.DateToken;
 import ptolemy.data.IntToken;
 import ptolemy.data.RecordToken;
 import ptolemy.data.StringToken;
 import ptolemy.data.Token;
+import ptolemy.data.type.ArrayType;
+import ptolemy.data.type.BaseType;
+import ptolemy.data.type.RecordType;
+import ptolemy.data.type.Type;
 import ptolemy.kernel.util.IllegalActionException;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
+import java.lang.reflect.ParameterizedType;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A helper, utility class to convert from bean to Kepler's record tokens.
@@ -43,11 +56,8 @@ public final class BeanTokenizer {
             }
 
             return new RecordToken(tokenMap);
-        } catch (
-            // @formatter:off
-                final NoSuchMethodException
-                        | IllegalAccessException
-                        | InvocationTargetException e) { // @formatter:on
+        } catch (final NoSuchMethodException | IllegalAccessException |
+                InvocationTargetException e) {
             throw new IllegalActionException(null, e, Messages.getString(
                     "failed.to.convert.a.bean.to.a.record.token"));
         }
@@ -71,12 +81,11 @@ public final class BeanTokenizer {
             return Token.NIL;
         } else if (object instanceof String) {
             return new StringToken((String) object);
-        } else if (object instanceof Integer) {
-            return new IntToken((Integer) object);
         } else if (object instanceof Boolean) {
             return new BooleanToken((Boolean) object);
-        } else if (object instanceof Date) {
-            long time = ((Date) object).getTime();
+        } else if (object instanceof LocalDateTime) {
+            long time = ((LocalDateTime) object).atZone(ZoneId.systemDefault())
+                                                .toInstant().toEpochMilli();
             return new DateToken(time);
         } else if (object instanceof Enum) {
             String name = ((Enum<?>) object).name();
@@ -84,9 +93,60 @@ public final class BeanTokenizer {
         } else if (object.getClass()
                          .isAnnotationPresent(FutureGatewayBean.class)) {
             return BeanTokenizer.convert(object);
+        } else if (object instanceof Collection<?>) {
+            if (((Collection<?>) object).isEmpty()) {
+                return new ArrayToken(BaseType.UNKNOWN);
+            }
+
+            List<Token> tokens = new ArrayList<>();
+            for (final Object item : (Iterable<?>) object) {
+                tokens.add(BeanTokenizer.asToken(item));
+            }
+            return new ArrayToken(tokens.toArray(new Token[tokens.size()]));
         } else {
             String value = object.toString();
             return new StringToken(value);
+        }
+    }
+
+    public static RecordType getRecordType(final Class<?> beanClass) {
+        Field[] fields = FieldUtils.getAllFields(beanClass);
+        List<String> labels = new ArrayList<>(fields.length);
+        List<Type> types = new ArrayList<>(fields.length);
+
+        for (final Field field : fields) {
+            labels.add(field.getName());
+
+            if (Iterable.class.isAssignableFrom(field.getType())) {
+                ParameterizedType genericType =
+                        (ParameterizedType) field.getGenericType();
+                Class<?> clazz =
+                        (Class<?>) genericType.getActualTypeArguments()[0];
+                types.add(new ArrayType(BeanTokenizer.asType(clazz)));
+            } else {
+                types.add(BeanTokenizer.asType(field.getType()));
+            }
+
+        }
+
+        String[] labelsArray = labels.toArray(new String[labels.size()]);
+        Type[] typesArray = types.toArray(new Type[types.size()]);
+        return new RecordType(labelsArray, typesArray);
+    }
+
+    private static Type asType(final Class<?> clazz) {
+        if (Objects.equals(clazz, boolean.class)) {
+            return BaseType.BOOLEAN;
+        } else if (Objects.equals(clazz, String.class)) {
+            return BaseType.STRING;
+        } else if (Objects.equals(clazz, LocalDateTime.class)) {
+            return BaseType.DATE;
+        } else if (Objects.equals(clazz, Enum.class)) {
+            return BaseType.STRING;
+        } else if (clazz.isAnnotationPresent(FutureGatewayBean.class)) {
+            return BeanTokenizer.getRecordType(clazz);
+        } else {
+            return BaseType.STRING;
         }
     }
 
