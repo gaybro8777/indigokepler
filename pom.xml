@@ -21,6 +21,12 @@
         </dependency>
 
         <dependency>
+            <groupId>display-redirect</groupId>
+            <artifactId>display-redirect</artifactId>
+            <version>1.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-anim</artifactId>
             <version>1.7</version>
@@ -71,6 +77,7 @@
                 <version>2.4</version>
                 <executions>
                     <execution>
+                        <id>install-ptolemy</id>
                         <phase>initialize</phase>
                         <goals>
                             <goal>install-file</goal>
@@ -81,6 +88,20 @@
                             <version>2.5</version>
                             <packaging>jar</packaging>
                             <file>${basedir}/external-jar/ptolemy-kepler-2.5.jar</file>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-display-redirect</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <groupId>display-redirect</groupId>
+                            <artifactId>display-redirect</artifactId>
+                            <version>1.1</version>
+                            <packaging>jar</packaging>
+                            <file>${basedir}/external-jar/display-redirect-1.1.jar</file>
                         </configuration>
                     </execution>
                 </executions>
@@ -126,14 +147,14 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${basedir}/target/indigo/resources/system.properties" />
-                                <mkdir dir="${basedir}/target/indigo/lib/exe" />
-                                <mkdir dir="${basedir}/target/indigo/lib/jar" />
-                                <mkdir dir="${basedir}/target/indigo/lib64" />
-                                <mkdir dir="${basedir}/target/indigo/module-info" />
-                                <mkdir dir="${basedir}/target/indigo/target" />
-                                <copy file="${basedir}/target/${project.artifactId}-${project.version}.jar" tofile="${basedir}/target/indigo/target/indigo.jar" />
-                                <copy file="${basedir}/target/classes/kepler-messages.properties" todir="${basedir}/target/indigo/resources" />
+                                <mkdir dir="${basedir}/target/indigo/resources/system.properties"/>
+                                <mkdir dir="${basedir}/target/indigo/lib/exe"/>
+                                <mkdir dir="${basedir}/target/indigo/lib/jar"/>
+                                <mkdir dir="${basedir}/target/indigo/lib64"/>
+                                <mkdir dir="${basedir}/target/indigo/module-info"/>
+                                <mkdir dir="${basedir}/target/indigo/target"/>
+                                <copy file="${basedir}/target/${project.artifactId}-${project.version}.jar" tofile="${basedir}/target/indigo/target/indigo.jar"/>
+                                <copy file="${basedir}/target/classes/kepler-messages.properties" todir="${basedir}/target/indigo/resources"/>
                             </tasks>
                         </configuration>
                     </execution>
@@ -188,6 +209,16 @@
                                     <outputDirectory>${basedir}/target/indigo/resources/</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <excludeArtifactIds>ptolemy,display-redirect</excludeArtifactIds>
+                            <outputDirectory>${basedir}/target/indigo/lib/jar/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
