@@ -147,14 +147,14 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${basedir}/target/indigo/resources/system.properties"/>
-                                <mkdir dir="${basedir}/target/indigo/lib/exe"/>
-                                <mkdir dir="${basedir}/target/indigo/lib/jar"/>
-                                <mkdir dir="${basedir}/target/indigo/lib64"/>
-                                <mkdir dir="${basedir}/target/indigo/module-info"/>
-                                <mkdir dir="${basedir}/target/indigo/target"/>
-                                <copy file="${basedir}/target/${project.artifactId}-${project.version}.jar" tofile="${basedir}/target/indigo/target/indigo.jar"/>
-                                <copy file="${basedir}/target/classes/kepler-messages.properties" todir="${basedir}/target/indigo/resources"/>
+                                <mkdir dir="${basedir}/target/indigo/resources/system.properties" />
+                                <mkdir dir="${basedir}/target/indigo/lib/exe" />
+                                <mkdir dir="${basedir}/target/indigo/lib/jar" />
+                                <mkdir dir="${basedir}/target/indigo/lib64" />
+                                <mkdir dir="${basedir}/target/indigo/module-info" />
+                                <mkdir dir="${basedir}/target/indigo/target" />
+                                <copy file="${basedir}/target/${project.artifactId}-${project.version}.jar" tofile="${basedir}/target/indigo/target/indigo.jar" />
+                                <copy file="${basedir}/target/classes/kepler-messages.properties" todir="${basedir}/target/indigo/resources" />
                             </tasks>
                         </configuration>
                     </execution>
