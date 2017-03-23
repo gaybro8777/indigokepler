@@ -37,7 +37,6 @@ After you have built and published jars from indigoclient, you can build indigok
 
 	mvn initialize  # this command will install ptolemy-lepler-2.5.jar in your local repository
 	mvn install     # this command will build Kepler actors. Before proceeding, make sure you have build indigoclient (https://github.com/indigo-dc/indigoclient)
-	mvn dependency:copy-dependencies -DoutputDirectory=target/indigo/lib/jar -DexcludeArtifactIds=ptolemy # installs all dependencies apart ptolemy
 
 After building indigo module, directory structure should have following layout
 
