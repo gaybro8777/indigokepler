@@ -1,13 +1,16 @@
 package pl.psnc.indigo.fg.kepler.helper;
 
 import ptolemy.actor.TypedIOPort;
-import ptolemy.actor.injection.PtolemyInjector;
 import ptolemy.actor.lib.LimitedFiringSource;
 import ptolemy.data.BooleanToken;
 import ptolemy.data.type.BaseType;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
+
+import java.util.Objects;
+
+import static java.lang.System.getProperty;
 
 /**
  * Actor which displays an image.
@@ -41,8 +44,9 @@ public class ShowSVG extends LimitedFiringSource {
         super.initialize();
 
         if (implementation == null) {
-            implementation = PtolemyInjector.getInjector().getInstance(
-                    ShowSVGInterface.class);
+            implementation =
+                    Objects.equals("true", getProperty("java.awt.headless"))
+                    ? new ShowSVGBatch() : new ShowSVGWithGui();
         }
     }
 

@@ -4,7 +4,6 @@ import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.dom.svg.SVGDocument;
-import ptolemy.actor.TypedAtomicActor;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.Nameable;
 
@@ -20,7 +19,7 @@ import java.util.Map;
 /**
  * A graphical implementation of the {@link ShowSVGInterface}.
  */
-public class ShowSVGJavaSe implements ShowSVGInterface {
+public class ShowSVGWithGui implements ShowSVGInterface {
     /**
      * An extension of {@link JFrame} which displays and scales inside an SVG
      * image.
@@ -68,11 +67,6 @@ public class ShowSVGJavaSe implements ShowSVGInterface {
     }
 
     private final Map<String, SVGFrame> mapIdFrame = new HashMap<>();
-
-    @Override
-    public void initialize(final TypedAtomicActor self) {
-        // do nothing
-    }
 
     @Override
     public void show(

@@ -8,8 +8,6 @@ import ptolemy.kernel.util.Nameable;
  * An interface required to run {@link ShowSVG} actor in batch.
  */
 public interface ShowSVGInterface {
-    void initialize(TypedAtomicActor self);
-
     void show(Nameable self, String frameId, String imagePath)
             throws IllegalActionException;
 }
