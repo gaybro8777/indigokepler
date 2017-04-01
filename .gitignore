@@ -3,6 +3,7 @@ lib/
 oph-credentials.txt
 target/
 workflows/ophidia/ensemble-visualization/phase1/config.json
+workflows/ophidia/ensemble-visualization/phase1/config.json.bak
 workflows/ophidia/ensemble-visualization/phase2/arguments.txt
 workflows/ophidia/ensemble/phase1/config.json
 workflows/ophidia/ensemble/phase2/arguments.txt
