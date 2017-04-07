@@ -69,7 +69,7 @@ public class ShowSVGWithGui implements ShowSVGInterface {
     private final Map<String, SVGFrame> mapIdFrame = new HashMap<>();
 
     @Override
-    public void show(
+    public final void show(
             final Nameable self, final String frameId, final String imagePath)
             throws IllegalActionException {
         if (!mapIdFrame.containsKey(frameId)) {
