@@ -6,7 +6,6 @@ import pl.psnc.indigo.fg.api.restful.jaxb.FutureGatewayBean;
 import ptolemy.data.ArrayToken;
 import ptolemy.data.BooleanToken;
 import ptolemy.data.DateToken;
-import ptolemy.data.IntToken;
 import ptolemy.data.RecordToken;
 import ptolemy.data.StringToken;
 import ptolemy.data.Token;
@@ -17,7 +16,6 @@ import ptolemy.data.type.Type;
 import ptolemy.kernel.util.IllegalActionException;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -56,8 +54,7 @@ public final class BeanTokenizer {
             }
 
             return new RecordToken(tokenMap);
-        } catch (final NoSuchMethodException | IllegalAccessException |
-                InvocationTargetException e) {
+        } catch (final ReflectiveOperationException e) {
             throw new IllegalActionException(null, e, Messages.getString(
                     "failed.to.convert.a.bean.to.a.record.token"));
         }
@@ -68,7 +65,7 @@ public final class BeanTokenizer {
      * annotated with {@link FutureGatewayBean}, then it will be converted
      * recursively into a {@link RecordToken}. For primitive data types,
      * currently supported tokens are: {@link Token#NIL}, {@link StringToken},
-     * {@link IntToken}, {@link BooleanToken} and {@link DateToken}.
+     * {@link BooleanToken} and {@link DateToken}.
      *
      * @param object An object to be converted.
      * @return A {@link Token} made out of the object.
@@ -134,6 +131,13 @@ public final class BeanTokenizer {
         return new RecordType(labelsArray, typesArray);
     }
 
+    /**
+     * Return Ptolemy {@link Type} corresponding to a given {@link Class}. For
+     * example BaseType.BOOLEAN corresponds to boolean.class.
+     *
+     * @param clazz A given class to get Ptolemy type of.
+     * @return Ptolemy {@link Type} of a token.
+     */
     private static Type asType(final Class<?> clazz) {
         if (Objects.equals(clazz, boolean.class)) {
             return BaseType.BOOLEAN;
@@ -150,6 +154,9 @@ public final class BeanTokenizer {
         }
     }
 
+    /**
+     * A private constructor to make this a utility class.
+     */
     private BeanTokenizer() {
         super();
     }

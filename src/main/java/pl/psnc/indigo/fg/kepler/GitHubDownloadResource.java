@@ -52,7 +52,7 @@ public class GitHubDownloadResource extends LimitedFiringSource {
     }
 
     @Override
-    public void fire() throws IllegalActionException {
+    public final void fire() throws IllegalActionException {
         super.fire();
 
         String repositoryName = PortHelper.readStringMandatory(repositoryPort);

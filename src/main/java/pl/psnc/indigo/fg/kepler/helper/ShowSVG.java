@@ -40,13 +40,15 @@ public class ShowSVG extends LimitedFiringSource {
     }
 
     @Override
-    public void initialize() throws IllegalActionException {
+    public final void initialize() throws IllegalActionException {
         super.initialize();
 
         if (implementation == null) {
-            implementation =
-                    Objects.equals("true", getProperty("java.awt.headless"))
-                    ? new ShowSVGBatch() : new ShowSVGWithGui();
+            if (Objects.equals("true", getProperty("java.awt.headless"))) {
+                implementation = new ShowSVGBatch();
+            } else {
+                implementation = new ShowSVGWithGui();
+            }
         }
     }
 
