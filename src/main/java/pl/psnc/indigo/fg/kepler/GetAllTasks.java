@@ -22,39 +22,27 @@ import java.util.List;
 
 /**
  * Actor which reports all tasks belonging to a user. See
- * {@link TasksAPI#getAllTasks(String)}.
+ * {@link TasksAPI#getAllTasks()}.
  */
 public class GetAllTasks extends FutureGatewayActor {
-    /**
-     * User id (mandatory).
-     */
-    private final TypedIOPort userPort;
-
     public GetAllTasks(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
-        userPort = new TypedIOPort(this, "user", true, false); //NON-NLS
-        userPort.setTypeEquals(BaseType.STRING);
-
         output.setTypeEquals(
                 new ArrayType(BeanTokenizer.getRecordType(Task.class)));
-
-        PortHelper.makePortNameVisible(userPort, output);
     }
 
     @Override
     public final void fire() throws IllegalActionException {
         super.fire();
 
-        String user = PortHelper.readStringMandatory(userPort);
-
         try {
             String uri = getFutureGatewayUri();
             String token = getAuthorizationToken();
             TasksAPI api = new TasksAPI(URI.create(uri), token);
 
-            List<Task> tasks = api.getAllTasks(user);
+            List<Task> tasks = api.getAllTasks();
             int size = tasks.size();
 
             List<RecordToken> tokens = new ArrayList<>(size);
