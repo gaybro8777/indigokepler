@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * Actor which uploads input files. See
- * {@link TasksAPI#uploadFileForTask(Task, File)}.
+ * {@link TasksAPI#uploadFileForTask(Task, File...)}.
  */
 public class UploadFiles extends FutureGatewayActor {
     /**
