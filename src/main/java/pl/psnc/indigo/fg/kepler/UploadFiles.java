@@ -100,13 +100,15 @@ public class UploadFiles extends FutureGatewayActor {
             for (int i = 0; i < inputFiles.size(); i++) {
                 /* establish the valid name of file */
                 final String inputFile = inputFiles.get(i);
-                final File file = new File(inputFile);
-                final String filename =
-                        (inputFilesNames.size() == inputFiles.size())
-                        ? inputFilesNames.get(i)
-                        : new File(inputFile).getName();
+                final String filename;
+                if (inputFilesNames.size() == inputFiles.size()) {
+                    filename = inputFilesNames.get(i);
+                } else {
+                    filename = new File(inputFile).getName();
+                }
 
                 /* check if file is readable */
+                final File file = new File(inputFile);
                 if (!file.canRead()) {
                     String message = Messages.getString("cannot.read.file.0");
                     message = MessageFormat.format(message, file);
@@ -135,6 +137,12 @@ public class UploadFiles extends FutureGatewayActor {
         }
     }
 
+    /**
+     * Create a temporary directory with unique name.
+     *
+     * @return A {@link File} object representing a created directory.
+     * @throws IllegalActionException If the creation was not possible.
+     */
     private File createTempDirectory() throws IllegalActionException {
         final File tempDirectory = new File(FileUtils.getTempDirectory(),
                                             UUID.randomUUID().toString());

@@ -39,7 +39,7 @@ public class SetAsyncExecMode extends LimitedFiringSource {
     }
 
     @Override
-    public void fire() throws IllegalActionException {
+    public final void fire() throws IllegalActionException {
         super.fire();
 
         final File jsonFile =

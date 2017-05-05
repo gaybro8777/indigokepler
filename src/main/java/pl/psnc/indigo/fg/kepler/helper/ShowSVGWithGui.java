@@ -7,8 +7,9 @@ import org.w3c.dom.svg.SVGDocument;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.Nameable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
