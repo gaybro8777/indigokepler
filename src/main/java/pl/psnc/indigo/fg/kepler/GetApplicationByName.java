@@ -14,7 +14,6 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 
 import java.net.URI;
-import java.text.MessageFormat;
 import java.util.Objects;
 
 /**
@@ -27,8 +26,8 @@ public class GetApplicationByName extends FutureGatewayActor {
      */
     private final TypedIOPort namePort;
 
-    public GetApplicationByName(
-            final CompositeEntity container, final String name)
+    public GetApplicationByName(final CompositeEntity container,
+                                final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
@@ -44,30 +43,31 @@ public class GetApplicationByName extends FutureGatewayActor {
     public final void fire() throws IllegalActionException {
         super.fire();
 
-        String name = PortHelper.readStringMandatory(namePort);
+        final String name = PortHelper.readStringMandatory(namePort);
 
         try {
-            String uri = getFutureGatewayUri();
-            String token = getAuthorizationToken();
-            ApplicationsAPI api = new ApplicationsAPI(URI.create(uri), token);
+            final String uri = getFutureGatewayUri();
+            final String token = getAuthorizationToken();
+            final ApplicationsAPI api =
+                    new ApplicationsAPI(URI.create(uri), token);
 
             for (final Application application : api.getAllApplications()) {
                 if (Objects.equals(name, application.getName())) {
-                    RecordToken recordToken =
+                    final RecordToken recordToken =
                             BeanTokenizer.convert(application);
                     output.broadcast(recordToken);
                     return;
                 }
             }
 
-            String message = Messages.getString(
-                    "failed.to.get.details.for.application.0");
-            message = MessageFormat.format(message, name);
+            final String message =
+                    Messages.format("failed.to.get.details.for.application.0",
+                                    name);
             throw new IllegalActionException(this, message);
         } catch (final FutureGatewayException e) {
-            String message = Messages.getString(
-                    "failed.to.get.details.for.application.0");
-            message = MessageFormat.format(message, name);
+            final String message =
+                    Messages.format("failed.to.get.details.for.application.0",
+                                    name);
             throw new IllegalActionException(this, e, message);
         }
     }

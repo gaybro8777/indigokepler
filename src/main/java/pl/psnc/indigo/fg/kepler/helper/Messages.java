@@ -1,5 +1,6 @@
 package pl.psnc.indigo.fg.kepler.helper;
 
+import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 /**
@@ -11,6 +12,10 @@ public final class Messages {
 
     public static String getString(final String s) {
         return Messages.RESOURCE_BUNDLE.getString(s);
+    }
+
+    public static String format(final String s, final Object... objects) {
+        return MessageFormat.format(Messages.getString(s), objects);
     }
 
     private Messages() {

@@ -32,7 +32,7 @@ import time
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Check Ophidia Workflow status and provide image file name')
-    parser.add_argument('-e', '--execut', default="/usr/local/ophidia/oph-terminal/bin/oph_term",
+    parser.add_argument('-e', '--execute', default="/usr/local/ophidia/oph-terminal/bin/oph_term",
                         help='Absolute path of Ophidia Terminal executable')
     parser.add_argument('-H', '--host', default="127.0.0.1", help='Ophidia server hostname or IP address')
     parser.add_argument('-P', '--port', default="11732", help='Ophidia server port')
@@ -40,17 +40,19 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--password', default="abcd", help='Ophidia password')
     parser.add_argument('-w', '--workflow', help='Absolute path of Ophidia Workflow JSON file', required=True)
     parser.add_argument('-a', '--args', help='List of workflow comma-separated arguments', required=True)
+    parser.add_argument('-f', '--futuregateway-uri', help='URI to FutureGateway, where runtime SVG will be saved')
 
     args = parser.parse_args()
 
     # Input arguments
-    terminal_exec = args.execut
+    terminal_exec = args.execute
     server_host = args.host
     server_port = args.port
     server_user = args.user
     server_pass = args.password
     workflow_name = args.workflow
     workflow_args = args.args
+    futuregateway_uri = args.futuregateway_uri
 
     # Common variables
     wid = 0
@@ -103,6 +105,8 @@ if __name__ == "__main__":
 
     with open('task-id.txt') as task_id_file:
         task_id = task_id_file.read().strip()
+    with open('token.txt') as token_file:
+        token = token_file.read().strip()
 
     # Loop until end of workflow
     workflow_running = True
@@ -167,8 +171,9 @@ if __name__ == "__main__":
         subprocess.call(['curl', 
                          '-X', 'PATCH', 
                          '-H', 'Content-Type: application/json', 
+                         '-H', 'Authorization: Bearer ' + token,
                          '-d', '@' + runtime_data_path, 
-                         'http://localhost:8888/v1.0/tasks/' + task_id])
+                         futuregateway_uri + '/v1.0/tasks/' + task_id])
         os.remove(runtime_data_path) 
 
         # Get workflow status

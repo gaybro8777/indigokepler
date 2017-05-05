@@ -14,7 +14,6 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 
 import java.net.URI;
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,8 +25,7 @@ public class SetRuntimeData extends FutureGatewayActor {
     private final TypedIOPort namePort;
     private final TypedIOPort valuePort;
 
-    public SetRuntimeData(
-            final CompositeEntity container, final String name)
+    public SetRuntimeData(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
@@ -48,26 +46,26 @@ public class SetRuntimeData extends FutureGatewayActor {
     public final void fire() throws IllegalActionException {
         super.fire();
 
-        String id = PortHelper.readStringMandatory(idPort);
-        String name = PortHelper.readStringMandatory(namePort);
-        String value = PortHelper.readStringMandatory(valuePort);
+        final String id = PortHelper.readStringMandatory(idPort);
+        final String name = PortHelper.readStringMandatory(namePort);
+        final String value = PortHelper.readStringMandatory(valuePort);
 
-        KeyValue keyValue = new KeyValue(name, value);
-        List<KeyValue> runtimeData = Collections.singletonList(keyValue);
-        PatchRuntimeData patchRuntimeData = new PatchRuntimeData();
+        final KeyValue keyValue = new KeyValue(name, value);
+        final List<KeyValue> runtimeData = Collections.singletonList(keyValue);
+        final PatchRuntimeData patchRuntimeData = new PatchRuntimeData();
         patchRuntimeData.setRuntimeData(runtimeData);
 
         try {
-            String uri = getFutureGatewayUri();
-            String token = getAuthorizationToken();
-            TasksAPI api = new TasksAPI(URI.create(uri), token);
+            final String uri = getFutureGatewayUri();
+            final String token = getAuthorizationToken();
+            final TasksAPI api = new TasksAPI(URI.create(uri), token);
 
-            boolean flag = api.patchRuntimeData(id, patchRuntimeData);
+            final boolean flag = api.patchRuntimeData(id, patchRuntimeData);
             output.broadcast(new BooleanToken(flag));
         } catch (final FutureGatewayException e) {
-            String message =
-                    Messages.getString("failed.to.set.runtime.data.for.task.0");
-            message = MessageFormat.format(message, id);
+            final String message =
+                    Messages.format("failed.to.set.runtime.data.for.task.0",
+                                    id);
             throw new IllegalActionException(this, e, message);
         }
     }

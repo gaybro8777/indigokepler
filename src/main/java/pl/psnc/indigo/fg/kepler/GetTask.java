@@ -13,7 +13,6 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 
 import java.net.URI;
-import java.text.MessageFormat;
 
 /**
  * Actor which gets status of a task. See {@link TasksAPI#getTask(String)}.
@@ -40,19 +39,18 @@ public class GetTask extends FutureGatewayActor {
     public final void fire() throws IllegalActionException {
         super.fire();
 
-        String id = PortHelper.readStringMandatory(idPort);
+        final String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            String uri = getFutureGatewayUri();
-            String token = getAuthorizationToken();
-            TasksAPI api = new TasksAPI(URI.create(uri), token);
+            final String uri = getFutureGatewayUri();
+            final String token = getAuthorizationToken();
+            final TasksAPI api = new TasksAPI(URI.create(uri), token);
 
-            Task task = api.getTask(id);
+            final Task task = api.getTask(id);
             output.broadcast(BeanTokenizer.convert(task));
         } catch (final FutureGatewayException e) {
-            String message =
-                    Messages.getString("failed.to.get.details.for.task.0");
-            message = MessageFormat.format(message, id);
+            final String message =
+                    Messages.format("failed.to.get.details.for.task.0", id);
             throw new IllegalActionException(this, e, message);
         }
     }

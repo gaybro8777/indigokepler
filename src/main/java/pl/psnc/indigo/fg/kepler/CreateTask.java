@@ -25,10 +25,6 @@ import java.util.List;
  */
 public class CreateTask extends FutureGatewayActor {
     /**
-     * User name (mandatory).
-     */
-    private final TypedIOPort userPort;
-    /**
      * Application id (mandatory).
      */
     private final TypedIOPort applicationPort;
@@ -53,9 +49,6 @@ public class CreateTask extends FutureGatewayActor {
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
-        userPort = new TypedIOPort(this, "user", true, false); //NON-NLS
-        userPort.setTypeEquals(BaseType.STRING);
-
         applicationPort =
                 new TypedIOPort(this, "application", true, false); //NON-NLS
         applicationPort.setTypeEquals(BaseType.STRING);
@@ -69,54 +62,53 @@ public class CreateTask extends FutureGatewayActor {
         argumentsPort.setTypeEquals(new ArrayType(BaseType.STRING));
 
         inputFilesPort =
-                new TypedIOPort(this, "input_files", true, false); //NON-NLS
+                new TypedIOPort(this, "inputFilesNames", true, false); //NON-NLS
         inputFilesPort.setTypeEquals(new ArrayType(BaseType.STRING));
 
-        outputFilesPort =
-                new TypedIOPort(this, "output_files", true, false); //NON-NLS
+        outputFilesPort = new TypedIOPort(this, "outputFilesNames", true,
+                                          false); //NON-NLS
         outputFilesPort.setTypeEquals(new ArrayType(BaseType.STRING));
 
         output.setTypeEquals(BaseType.STRING);
 
-        PortHelper
-                .makePortNameVisible(userPort, applicationPort, descriptionPort,
-                                     argumentsPort, inputFilesPort,
-                                     outputFilesPort, output);
+        PortHelper.makePortNameVisible(applicationPort, descriptionPort,
+                                       argumentsPort, inputFilesPort,
+                                       outputFilesPort, output);
     }
 
     @Override
     public final void fire() throws IllegalActionException {
         super.fire();
 
-        String user = PortHelper.readStringMandatory(userPort);
-        String application = PortHelper.readStringMandatory(applicationPort);
-        String description = PortHelper.readStringOptional(descriptionPort);
-        List<String> arguments =
+        final String application =
+                PortHelper.readStringMandatory(applicationPort);
+        final String description =
+                PortHelper.readStringOptional(descriptionPort);
+        final List<String> arguments =
                 PortHelper.readStringArrayOptional(argumentsPort);
-        List<String> inputFileNames =
+        final List<String> inputFileNames =
                 PortHelper.readStringArrayOptional(inputFilesPort);
-        List<String> outputFileNames =
+        final List<String> outputFileNames =
                 PortHelper.readStringArrayOptional(outputFilesPort);
 
-        int inputSize = inputFileNames.size();
-        int outputSize = outputFileNames.size();
+        final int inputSize = inputFileNames.size();
+        final int outputSize = outputFileNames.size();
 
-        List<InputFile> inputFiles = new ArrayList<>(inputSize);
+        final List<InputFile> inputFiles = new ArrayList<>(inputSize);
         for (final String fileName : inputFileNames) {
-            InputFile inputFile = new InputFile();
+            final InputFile inputFile = new InputFile();
             inputFile.setName(fileName);
             inputFiles.add(inputFile);
         }
 
-        List<OutputFile> outputFiles = new ArrayList<>(outputSize);
+        final List<OutputFile> outputFiles = new ArrayList<>(outputSize);
         for (final String fileName : outputFileNames) {
-            OutputFile outputFile = new OutputFile();
+            final OutputFile outputFile = new OutputFile();
             outputFile.setName(fileName);
             outputFiles.add(outputFile);
         }
 
         Task task = new Task();
-        task.setUser(user);
         task.setDescription(description);
         task.setApplication(application);
         task.setArguments(arguments);
@@ -124,12 +116,12 @@ public class CreateTask extends FutureGatewayActor {
         task.setOutputFiles(outputFiles);
 
         try {
-            String uri = getFutureGatewayUri();
-            String token = getAuthorizationToken();
-            TasksAPI api = new TasksAPI(URI.create(uri), token);
+            final String uri = getFutureGatewayUri();
+            final String token = getAuthorizationToken();
+            final TasksAPI api = new TasksAPI(URI.create(uri), token);
 
             task = api.createTask(task);
-            String id = task.getId();
+            final String id = task.getId();
             output.send(0, new StringToken(id));
         } catch (final FutureGatewayException e) {
             throw new IllegalActionException(this, e, Messages.getString(

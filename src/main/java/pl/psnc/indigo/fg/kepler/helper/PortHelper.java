@@ -7,7 +7,6 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 import ptolemy.kernel.util.SingletonAttribute;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,8 +29,7 @@ public final class PortHelper {
         if (port.getWidth() > 0) {
             return ((StringToken) port.get(0)).stringValue();
         }
-        String message = Messages.getString("missing.data.on.port.0");
-        message = MessageFormat.format(message, port);
+        final String message = Messages.format("missing.data.on.port.0", port);
         throw new IllegalActionException(port, message);
     }
 
@@ -64,8 +62,8 @@ public final class PortHelper {
         if (port.getWidth() > 0) {
             return PortHelper.readStringArray(port);
         }
-        throw new IllegalActionException(port, MessageFormat
-                .format(Messages.getString("missing.data.on.port.0"), port));
+        throw new IllegalActionException(port, Messages.format(
+                "missing.data.on.port.0", port));
     }
 
     /**
@@ -99,12 +97,12 @@ public final class PortHelper {
      */
     private static List<String> readStringArray(final TypedIOPort port)
             throws IllegalActionException {
-        ArrayToken tokenArray = (ArrayToken) port.get(0);
-        int length = tokenArray.length();
-        List<String> stringList = new ArrayList<>(length);
+        final ArrayToken tokenArray = (ArrayToken) port.get(0);
+        final int length = tokenArray.length();
+        final List<String> stringList = new ArrayList<>(length);
 
         for (int i = 0; i < length; i++) {
-            String arrayElement =
+            final String arrayElement =
                     ((StringToken) tokenArray.getElement(i)).stringValue();
             stringList.add(arrayElement);
         }

@@ -14,7 +14,6 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 
 import java.net.URI;
-import java.text.MessageFormat;
 
 /**
  * Actor which queries Future Gateway for application details. See:
@@ -42,20 +41,21 @@ public class GetApplication extends FutureGatewayActor {
     public final void fire() throws IllegalActionException {
         super.fire();
 
-        String id = PortHelper.readStringMandatory(idPort);
+        final String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            String uri = getFutureGatewayUri();
-            String token = getAuthorizationToken();
-            ApplicationsAPI api = new ApplicationsAPI(URI.create(uri), token);
+            final String uri = getFutureGatewayUri();
+            final String token = getAuthorizationToken();
+            final ApplicationsAPI api =
+                    new ApplicationsAPI(URI.create(uri), token);
 
-            Application application = api.getApplication(id);
-            RecordToken recordToken = BeanTokenizer.convert(application);
+            final Application application = api.getApplication(id);
+            final RecordToken recordToken = BeanTokenizer.convert(application);
             output.broadcast(recordToken);
         } catch (final FutureGatewayException e) {
-            String message = Messages.getString(
-                    "failed.to.get.details.for.application.0");
-            message = MessageFormat.format(message, id);
+            final String message =
+                    Messages.format("failed.to.get.details.for.application.0",
+                                    id);
             throw new IllegalActionException(this, e, message);
         }
     }

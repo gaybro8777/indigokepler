@@ -17,7 +17,6 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 
 import java.net.URI;
-import java.text.MessageFormat;
 import java.util.List;
 
 /**
@@ -47,21 +46,21 @@ public class GetOutputsList extends FutureGatewayActor {
     public final void fire() throws IllegalActionException {
         super.fire();
 
-        String id = PortHelper.readStringMandatory(idPort);
+        final String id = PortHelper.readStringMandatory(idPort);
 
         try {
-            String uri = getFutureGatewayUri();
-            String token = getAuthorizationToken();
-            TasksAPI restAPI = new TasksAPI(URI.create(uri), token);
+            final String uri = getFutureGatewayUri();
+            final String token = getAuthorizationToken();
+            final TasksAPI restAPI = new TasksAPI(URI.create(uri), token);
 
-            List<OutputFile> files = restAPI.getTask(id).getOutputFiles();
-            RecordToken[] tokens = new RecordToken[files.size()];
+            final List<OutputFile> files = restAPI.getTask(id).getOutputFiles();
+            final RecordToken[] tokens = new RecordToken[files.size()];
 
             for (int i = 0; i < files.size(); i++) {
-                String name = files.get(i).getName();
-                String url = files.get(i).getUrl().toString();
+                final String name = files.get(i).getName();
+                final String url = files.get(i).getUrl().toString();
 
-                StringToken[] file = new StringToken[2];
+                final StringToken[] file = new StringToken[2];
                 file[0] = new StringToken(url);
                 file[1] = new StringToken(name);
                 tokens[i] = new RecordToken(new String[]{"url", "name"}, file);
@@ -69,9 +68,9 @@ public class GetOutputsList extends FutureGatewayActor {
 
             output.broadcast(new ArrayToken(tokens));
         } catch (final FutureGatewayException e) {
-            String message =
-                    Messages.getString("failed.to.get.output.files.for.task.0");
-            message = MessageFormat.format(message, id);
+            final String message =
+                    Messages.format("failed.to.get.output.files.for.task.0",
+                                    id);
             throw new IllegalActionException(this, e, message);
         }
     }

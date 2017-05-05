@@ -7,9 +7,8 @@ import org.w3c.dom.svg.SVGDocument;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.Nameable;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -39,7 +38,7 @@ public class ShowSVGWithGui implements ShowSVGInterface {
         }
 
         private void setImage(final File image) throws IOException {
-            SVGDocument document = SVGFrame.fromFile(image);
+            final SVGDocument document = SVGFrame.fromFile(image);
             canvas.setSVGDocument(document);
 
             if (!isVisible()) {
@@ -57,11 +56,11 @@ public class ShowSVGWithGui implements ShowSVGInterface {
          */
         private static SVGDocument fromFile(final File file)
                 throws IOException {
-            SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory(
+            final SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory(
                     XMLResourceDescriptor.getXMLParserClassName());
 
-            URI uri = file.toURI();
-            String uriString = uri.toString();
+            final URI uri = file.toURI();
+            final String uriString = uri.toString();
             return (SVGDocument) factory.createDocument(uriString);
         }
     }
@@ -69,15 +68,15 @@ public class ShowSVGWithGui implements ShowSVGInterface {
     private final Map<String, SVGFrame> mapIdFrame = new HashMap<>();
 
     @Override
-    public final void show(
-            final Nameable self, final String frameId, final String imagePath)
+    public final void show(final Nameable self, final String frameId,
+                           final String imagePath)
             throws IllegalActionException {
         if (!mapIdFrame.containsKey(frameId)) {
             mapIdFrame.put(frameId, new SVGFrame(frameId));
         }
 
         try {
-            File image = new File(imagePath);
+            final File image = new File(imagePath);
             mapIdFrame.get(frameId).setImage(image);
         } catch (final IOException e) {
             throw new IllegalActionException(self, e, Messages.getString(

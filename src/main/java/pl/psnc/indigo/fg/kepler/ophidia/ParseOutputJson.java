@@ -56,12 +56,12 @@ public class ParseOutputJson extends LimitedFiringSource {
     public final void fire() throws IllegalActionException {
         super.fire();
 
-        String json = PortHelper.readStringMandatory(jsonPort);
+        final String json = PortHelper.readStringMandatory(jsonPort);
 
         String[] keys = ParseOutputJson.EMPTY;
         String[] values = ParseOutputJson.EMPTY;
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            final ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(json);
             jsonNode = Optional.ofNullable(jsonNode.get("response"))
                                .orElse(NullNode.getInstance()); //NON-NLS
@@ -75,44 +75,45 @@ public class ParseOutputJson extends LimitedFiringSource {
                                             String[].class); //NON-NLS
             }
         } catch (final IOException e) {
-            String message = Messages.getString("failed.to.parse.json");
+            final String message = Messages.getString("failed.to.parse.json");
             ParseOutputJson.LOGGER.error(message, e);
             output.broadcast(new StringToken(""));
             return;
         }
 
         if (keys.length != values.length) {
-            String message = Messages.getString(
+            final String message = Messages.getString(
                     "invalid.json.keys.and.values.do.not.match");
             throw new IllegalActionException(this, message);
         }
 
-        Map<String, String> map = new HashMap<>(keys.length);
+        final Map<String, String> map = new HashMap<>(keys.length);
         for (int i = 0; i < keys.length; i++) {
             map.put(keys[i], values[i]);
         }
 
-        if (!map.containsKey(ParseOutputJson.JOB_ID) || !map
-                .containsKey(ParseOutputJson.SESSION_CODE) || !map
-                .containsKey(ParseOutputJson.WORKFLOW)) {
+        if (!map.containsKey(ParseOutputJson.JOB_ID) ||
+            !map.containsKey(ParseOutputJson.SESSION_CODE) ||
+            !map.containsKey(ParseOutputJson.WORKFLOW)) {
 
-            String message =
+            final String message =
                     Messages.getString("invalid.json.lack.of.expected.keys");
             ParseOutputJson.LOGGER.error(message);
             output.broadcast(new StringToken(""));
             return;
         }
 
-        String sessionCode = map.get(ParseOutputJson.SESSION_CODE);
-        String workflowId = map.get(ParseOutputJson.WORKFLOW);
-        String jobId = map.get(ParseOutputJson.JOB_ID);
-        URI uri = UriBuilder.fromUri(jobId).replacePath("").replaceQuery("")
-                            .port(ParseOutputJson.DEFAULT_PORT)
-                            .path("/thredds/dodsC/indigo/precip_trend_input/")
-                            .path(sessionCode).path(workflowId)
-                            .path("precip_trend_analysis.nc").fragment(null)
-                            .build();
-        String uriString = uri.toString();
+        final String sessionCode = map.get(ParseOutputJson.SESSION_CODE);
+        final String workflowId = map.get(ParseOutputJson.WORKFLOW);
+        final String jobId = map.get(ParseOutputJson.JOB_ID);
+        final URI uri =
+                UriBuilder.fromUri(jobId).replacePath("").replaceQuery("")
+                          .port(ParseOutputJson.DEFAULT_PORT)
+                          .path("/thredds/dodsC/indigo/precip_trend_input/")
+                          .path(sessionCode).path(workflowId)
+                          .path("precip_trend_analysis.nc").fragment(null)
+                          .build();
+        final String uriString = uri.toString();
         output.broadcast(new StringToken(uriString));
     }
 }

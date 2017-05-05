@@ -58,19 +58,19 @@ public class GetRuntimeSVG extends FutureGatewayActor {
     public final void fire() throws IllegalActionException {
         super.fire();
 
-        String id = PortHelper.readStringMandatory(idPort);
-        File outputFile =
+        final String id = PortHelper.readStringMandatory(idPort);
+        final File outputFile =
                 new File(PortHelper.readStringMandatory(outputPathPort));
 
         try {
-            String uri = getFutureGatewayUri();
-            String token = getAuthorizationToken();
-            TasksAPI api = new TasksAPI(URI.create(uri), token);
-            Task task = api.getTask(id);
+            final String uri = getFutureGatewayUri();
+            final String token = getAuthorizationToken();
+            final TasksAPI api = new TasksAPI(URI.create(uri), token);
+            final Task task = api.getTask(id);
 
             for (final RuntimeData runtimeData : task.getRuntimeData()) {
                 if (Objects.equals(GetRuntimeSVG.SVG, runtimeData.getName())) {
-                    byte[] svgRaw = DatatypeConverter
+                    final byte[] svgRaw = DatatypeConverter
                             .parseBase64Binary(runtimeData.getValue());
                     FileUtils.writeByteArrayToFile(outputFile, svgRaw);
                     output.broadcast(new BooleanToken(true));
@@ -78,14 +78,15 @@ public class GetRuntimeSVG extends FutureGatewayActor {
                 }
             }
 
-            InputStream stream = GetRuntimeSVG.class.getClassLoader()
-                                                    .getResourceAsStream(
-                                                            "empty.svg");
+            final InputStream stream = GetRuntimeSVG.class.getClassLoader()
+                                                          .getResourceAsStream(
+                                                                  "empty.svg");
             //NON-NLS
             FileUtils.copyInputStreamToFile(stream, outputFile);
             output.broadcast(new BooleanToken(false));
         } catch (FutureGatewayException | IOException e) {
-            String message = Messages.getString("failed.to.get.runtime.svg");
+            final String message =
+                    Messages.getString("failed.to.get.runtime.svg");
             throw new IllegalActionException(this, e, message);
         }
     }
