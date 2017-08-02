@@ -34,13 +34,13 @@
   ],
   "input_files": [
     {
-      "override" : false,
-      "path": "",
-      "name": "template.yml"
+      "override" : true,
+      "path": "/home/futuregateway/kepler-batch/example",
+      "name": "tosca_template.yml"
     },
     {
       "override" : false,
-      "path": "",
+      "path": "/home/futuregateway/kepler-batch/example",
       "name": "parameters.json"
     }
   ]

@@ -18,7 +18,7 @@
         },
         {
           "name": "password",
-          "value": "VY+rwF0O1y+/"
+          "value": "FILL-THIS-VALUE"
         }
       ],
       "enabled": true,
@@ -55,17 +55,17 @@
   "input_files": [
     {
       "override": false,
-      "path": "",
+      "path": "/home/futuregateway/oph-term/example",
       "name": "script.sh"
     },
     {
       "override": false,
-      "path": "",
+      "path": "/home/futuregateway/oph-term/example",
       "name": "workflow.json"
     },
     {
       "override": false,
-      "path": "",
+      "path": "/home/futuregateway/oph-term/example",
       "name": "oph-credentials.txt"
     }
   ]
