@@ -33,6 +33,11 @@ public class FutureGatewayActor extends LimitedFiringSource {
             LoggerFactory.getLogger(FutureGatewayActor.class);
     private static final String DEFAULT_TOKEN_SERVICE_URI =
             "https://fgw01.ncg.ingrid.pt/api/jsonws/iam.token/get-token";
+    /**
+     * 3 minutes is taken from indigo-dc/LiferayPlugins.
+     * This is the duration, below which it uses refresh token.
+     */
+    private static final int MINUTES_BEFORE_EXPIRATION = 3;
 
     /**
      * Port for URI of a Future Gateway instance.
@@ -51,15 +56,17 @@ public class FutureGatewayActor extends LimitedFiringSource {
      */
     private final StringParameter authorizationToken;
     /**
-     * Parameter for token webservice URI, part of indigo-dc/LiferayPlugins
+     * Parameter for token webservice URI, part of indigo-dc/LiferayPlugins.
      */
     private final StringParameter tokenServiceUri;
     /**
-     * Parameter for token webservice username, part of indigo-dc/LiferayPlugins
+     * Parameter for token webservice username, part of
+     * indigo-dc/LiferayPlugins.
      */
     private final StringParameter tokenServiceUser;
     /**
-     * Parameter for token webservice password, part of indigo-dc/LiferayPlugins
+     * Parameter for token webservice password, part of
+     * indigo-dc/LiferayPlugins.
      */
     private final StringParameter tokenServicePassword;
 
@@ -133,9 +140,7 @@ public class FutureGatewayActor extends LimitedFiringSource {
                       "{} minutes.", nowLocalDateTime, expiresAtLocalDateTime,
                       minutes);
 
-        // 3 minutes is taken from indigo-dc/LiferayPlugins
-        // this is the duration, below which it uses refresh token
-        if (minutes < 3) {
+        if (minutes < FutureGatewayActor.MINUTES_BEFORE_EXPIRATION) {
             final String token = refreshToken();
             authorizationToken.setToken(token);
         }
@@ -143,6 +148,12 @@ public class FutureGatewayActor extends LimitedFiringSource {
         return authorizationToken.stringValue();
     }
 
+    /**
+     * Refresh IAM token using webservice from indigo-dc/LiferayPlugins.
+     *
+     * @return An IAM token which will be valid to use.
+     * @throws IllegalActionException If REST communication fails.
+     */
     private String refreshToken() throws IllegalActionException {
         try {
             final String token = TokenHelper
@@ -163,6 +174,13 @@ public class FutureGatewayActor extends LimitedFiringSource {
         }
     }
 
+    /**
+     * Decode IAM token and escalate any error into Kepler-level exception.
+     *
+     * @param token IAM token.
+     * @return A decoded object.
+     * @throws IllegalActionException When the token is not a regular JWT token.
+     */
     private DecodedJWT decodeToken(final String token)
             throws IllegalActionException {
         try {
