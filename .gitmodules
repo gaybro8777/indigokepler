@@ -1,3 +1,0 @@
-[submodule "workflows/ophidia/ophidia-workflow-catalogue"]
-	path = workflows/ophidia/ophidia-workflow-catalogue
-	url = https://github.com/OphidiaBigData/ophidia-workflow-catalogue.git
