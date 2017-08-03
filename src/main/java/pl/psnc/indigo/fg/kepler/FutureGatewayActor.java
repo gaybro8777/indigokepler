@@ -117,32 +117,44 @@ public class FutureGatewayActor extends LimitedFiringSource {
 
     protected final String getAuthorizationToken()
             throws IllegalActionException {
-        if ((authorizationTokenPort.getWidth() > 0) &&
-            authorizationTokenPort.hasToken(0)) {
-            final Token token = authorizationTokenPort.get(0);
-            authorizationToken.setToken(token);
-        }
+        try {
+            if ((authorizationTokenPort.getWidth() > 0) &&
+                authorizationTokenPort.hasToken(0)) {
+                final Token token = authorizationTokenPort.get(0);
+                authorizationToken.setToken(token);
+            }
 
-        final DecodedJWT jwt = decodeToken(authorizationToken.stringValue());
-        final long expiresAt = jwt.getExpiresAt().getTime();
-        final long now = System.currentTimeMillis();
-        final long diff = expiresAt - now;
-        final long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
+            final DecodedJWT jwt = JWT.decode(authorizationToken.stringValue());
 
-        final LocalDateTime nowLocalDateTime =
-                Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault())
-                       .toLocalDateTime();
-        final LocalDateTime expiresAtLocalDateTime =
-                Instant.ofEpochMilli(expiresAt).atZone(ZoneId.systemDefault())
-                       .toLocalDateTime();
-        FutureGatewayActor.LOGGER
-                .info("Now is {}. IAM token expires at {}. The difference is " +
-                      "{} minutes.", nowLocalDateTime, expiresAtLocalDateTime,
-                      minutes);
+            if (jwt.getExpiresAt() != null) {
+                final long expiresAt = jwt.getExpiresAt().getTime();
+                final long now = System.currentTimeMillis();
+                final long diff = expiresAt - now;
+                final long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
 
-        if (minutes < FutureGatewayActor.MINUTES_BEFORE_EXPIRATION) {
-            final String token = refreshToken();
-            authorizationToken.setToken(token);
+                final LocalDateTime nowLocalDateTime =
+                        Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault())
+                               .toLocalDateTime();
+                final LocalDateTime expiresAtLocalDateTime =
+                        Instant.ofEpochMilli(expiresAt)
+                               .atZone(ZoneId.systemDefault())
+                               .toLocalDateTime();
+                FutureGatewayActor.LOGGER
+                        .info("Now is {}. IAM token expires at {}. The " +
+                              "difference is {} minutes.", nowLocalDateTime,
+                              expiresAtLocalDateTime, minutes);
+
+                if (minutes < FutureGatewayActor.MINUTES_BEFORE_EXPIRATION) {
+                    final String token = refreshToken();
+                    authorizationToken.setToken(token);
+                }
+            }
+        } catch (final JWTDecodeException e) {
+            // log error, but do not rethrow
+            // in some cases, token can be invalid i.e. undecodeable, but this
+            // is fine; for example, if token is not IAM-validated it does
+            // not have to be a real JWT
+            FutureGatewayActor.LOGGER.warn("Invalid token", e);
         }
 
         return authorizationToken.stringValue();
@@ -161,33 +173,16 @@ public class FutureGatewayActor extends LimitedFiringSource {
                               URI.create(tokenServiceUri.stringValue()),
                               tokenServiceUser.stringValue(),
                               tokenServicePassword.stringValue());
-            final DecodedJWT newJwt = decodeToken(token);
+            final DecodedJWT newJwt = JWT.decode(token);
             final LocalDateTime newExpiresAt = LocalDateTime
                     .ofInstant(newJwt.getExpiresAt().toInstant(),
                                ZoneId.systemDefault());
             FutureGatewayActor.LOGGER
                     .info("IAM token refreshed, expires at {}", newExpiresAt);
             return token;
-        } catch (final FutureGatewayException e) {
+        } catch (final FutureGatewayException | JWTDecodeException e) {
             throw new IllegalActionException(this, e,
                                              "Failed to refresh token");
-        }
-    }
-
-    /**
-     * Decode IAM token and escalate any error into Kepler-level exception.
-     *
-     * @param token IAM token.
-     * @return A decoded object.
-     * @throws IllegalActionException When the token is not a regular JWT token.
-     */
-    private DecodedJWT decodeToken(final String token)
-            throws IllegalActionException {
-        try {
-            return JWT.decode(token);
-        } catch (final JWTDecodeException e) {
-            throw new IllegalActionException(this, e,
-                                             "Invalid authorization token");
         }
     }
 }
