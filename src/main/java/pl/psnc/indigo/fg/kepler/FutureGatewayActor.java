@@ -19,10 +19,11 @@ import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.NameDuplicationException;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.concurrent.TimeUnit;
+import java.time.ZoneOffset;
 
 /**
  * An actor which reads desired Future Gateway URI in the beginning
@@ -127,22 +128,16 @@ public class FutureGatewayActor extends LimitedFiringSource {
             final DecodedJWT jwt = JWT.decode(authorizationToken.stringValue());
 
             if (jwt.getExpiresAt() != null) {
-                final long expiresAt = jwt.getExpiresAt().getTime();
-                final long now = System.currentTimeMillis();
-                final long diff = expiresAt - now;
-                final long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
-
-                final LocalDateTime nowLocalDateTime =
-                        Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault())
-                               .toLocalDateTime();
-                final LocalDateTime expiresAtLocalDateTime =
-                        Instant.ofEpochMilli(expiresAt)
-                               .atZone(ZoneId.systemDefault())
-                               .toLocalDateTime();
+                final LocalDateTime now = LocalDateTime.now();
+                final LocalDateTime expiresAt =
+                        Instant.ofEpochMilli(jwt.getExpiresAt().getTime())
+                               .atOffset(ZoneOffset.UTC).toLocalDateTime();
+                final Duration duration = Duration.between(now, expiresAt);
+                final long minutes = duration.toMinutes();
                 FutureGatewayActor.LOGGER
                         .info("Now is {}. IAM token expires at {}. The " +
-                              "difference is {} minutes.", nowLocalDateTime,
-                              expiresAtLocalDateTime, minutes);
+                              "difference is {} minutes.", now, expiresAt,
+                              minutes);
 
                 if (minutes < FutureGatewayActor.MINUTES_BEFORE_EXPIRATION) {
                     final String token = refreshToken();
