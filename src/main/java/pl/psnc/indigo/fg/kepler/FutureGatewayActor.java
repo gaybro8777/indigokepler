@@ -23,7 +23,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 
 /**
  * An actor which reads desired Future Gateway URI in the beginning
@@ -129,9 +128,10 @@ public class FutureGatewayActor extends LimitedFiringSource {
 
             if (jwt.getExpiresAt() != null) {
                 final LocalDateTime now = LocalDateTime.now();
-                final LocalDateTime expiresAt =
-                        Instant.ofEpochMilli(jwt.getExpiresAt().getTime())
-                               .atOffset(ZoneOffset.UTC).toLocalDateTime();
+                final Instant instant =
+                        Instant.ofEpochMilli(jwt.getExpiresAt().getTime());
+                final LocalDateTime expiresAt = LocalDateTime
+                        .ofInstant(instant, ZoneId.systemDefault());
                 final Duration duration = Duration.between(now, expiresAt);
                 final long minutes = duration.toMinutes();
                 FutureGatewayActor.LOGGER
