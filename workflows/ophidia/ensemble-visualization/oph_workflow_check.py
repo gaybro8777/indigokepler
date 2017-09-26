@@ -21,6 +21,7 @@
 from __future__ import print_function
 import argparse
 import base64
+import datetime
 import json
 import os
 import re
@@ -168,6 +169,30 @@ if __name__ == "__main__":
                     ]
                 }
                 jsonfile.write(json.dumps(runtime_data))
+
+        # Refresh token if it is going to expire in 3 minutes
+        token_info = token.split('.')[1]
+        missing_padding = len(token_info) % 4
+
+        if missing_padding != 0:
+            token_info += '='* (4 - missing_padding)
+
+        token_info = json.loads(base64.b64decode(token_info))
+        expires_at = datetime.datetime.utcfromtimestamp(token_info['exp'])
+
+        if (expires_at - datetime.datetime.utcnow()).total_seconds() < 180:
+            with open('token-service.json') as token_service_file:
+                token_service = json.load(token_service_file)
+                token_service_user = token_service['user']
+                token_service_password = token_service['password']
+                token_service_uri = token_service['uri']
+            subject = token_info['sub']
+            stdout = subprocess.check_output(['curl',
+                                              '-u', token_service_user + ':' + token_service_password,
+                                              '-d', 'subject=' + subject,
+                                              token_service_uri])
+            token = json.loads(stdout)['token']
+
         subprocess.call(['curl', 
                          '-X', 'PATCH', 
                          '-H', 'Content-Type: application/json', 

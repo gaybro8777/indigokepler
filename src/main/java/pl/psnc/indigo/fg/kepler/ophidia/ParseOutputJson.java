@@ -31,7 +31,6 @@ public class ParseOutputJson extends LimitedFiringSource {
     private static final String JOB_ID = "JobID";
     private static final String SESSION_CODE = "Session Code";
     private static final String WORKFLOW = "Workflow";
-    private static final int DEFAULT_PORT = 8080;
     private static final String[] EMPTY = new String[0];
 
     /**
@@ -108,7 +107,6 @@ public class ParseOutputJson extends LimitedFiringSource {
         final String jobId = map.get(ParseOutputJson.JOB_ID);
         final URI uri =
                 UriBuilder.fromUri(jobId).replacePath("").replaceQuery("")
-                          .port(ParseOutputJson.DEFAULT_PORT)
                           .path("/thredds/dodsC/indigo/precip_trend_input/")
                           .path(sessionCode).path(workflowId)
                           .path("precip_trend_analysis.nc").fragment(null)

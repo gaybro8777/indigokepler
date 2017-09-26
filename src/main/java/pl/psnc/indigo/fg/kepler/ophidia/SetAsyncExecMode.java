@@ -1,6 +1,7 @@
 package pl.psnc.indigo.fg.kepler.ophidia;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import pl.psnc.indigo.fg.kepler.helper.Messages;
 import pl.psnc.indigo.fg.kepler.helper.PortHelper;
 import ptolemy.actor.TypedIOPort;
@@ -25,23 +26,27 @@ public class SetAsyncExecMode extends LimitedFiringSource {
     private static final Pattern PATTERN =
             Pattern.compile("\\s+\"exec_mode\":\\s*\"sync\"");
 
+    private final TypedIOPort tempPathPort;
     private final TypedIOPort jsonFilePort;
 
     public SetAsyncExecMode(final CompositeEntity container, final String name)
             throws NameDuplicationException, IllegalActionException {
         super(container, name);
 
+        tempPathPort = new TypedIOPort(this, "tempPath", true, false);
+        tempPathPort.setTypeEquals(BaseType.STRING);
         jsonFilePort = new TypedIOPort(this, "jsonFile", true, false);
         jsonFilePort.setTypeEquals(BaseType.STRING);
         output.setTypeEquals(BaseType.STRING);
 
-        PortHelper.makePortNameVisible(jsonFilePort, output);
+        PortHelper.makePortNameVisible(tempPathPort, jsonFilePort, output);
     }
 
     @Override
     public final void fire() throws IllegalActionException {
         super.fire();
 
+        final String tempPath = PortHelper.readStringOptional(tempPathPort);
         final File jsonFile =
                 new File(PortHelper.readStringMandatory(jsonFilePort));
         try {
@@ -53,8 +58,14 @@ public class SetAsyncExecMode extends LimitedFiringSource {
                     matcher.replaceFirst("\"exec_mode\" :\"async\"");
 
             /* write it in a temporary file */
-            final File file = File.createTempFile("SetAsyncExecMode", ".json");
-            FileUtils.write(file, jsonAsync);
+            final File file;
+            if (StringUtils.isBlank(tempPath)) {
+                file = File.createTempFile("SetAsyncExecMode", ".json");
+            } else {
+                file = File.createTempFile("SetAsyncExecMode", ".json",
+                                           new File(tempPath));
+            }
+            FileUtils.write(file, jsonAsync, Charset.defaultCharset());
 
             output.broadcast(new StringToken(file.getAbsolutePath()));
         } catch (final IOException e) {

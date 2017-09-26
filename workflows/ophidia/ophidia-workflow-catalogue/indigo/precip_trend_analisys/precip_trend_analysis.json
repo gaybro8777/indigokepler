@@ -1,14 +1,13 @@
 {
     "name": "precip_trend_analysis",
     "author": "CMCC Foundation",
-    "abstract": "Workflow for the analysis of precipitation trends related to different scenarios. ${1} is ncores; ${2} is the model (e.g. CMCC-CM); ${3} is the scenario (e.g. rcp85); ${4} is the frequency (e.g. day); ${5} is the percentile (e.g. 0.9); ${6} is the past time subset (e.g. 1976_2006); ${7} is the future time subset (e.g. 2071_2101); ${8} is the geographic subset (e.g. 30:45|0:40); ${9} is the grid of output map using the format r<lon>x<lat> (e.g. r360x180), i.e. a global regular lon/lat grid (this parameter is optional and by default the lon/lat grid of input file is adopted); ${10} import type, set to '1' in case only subsetting data have to be imported (optional); ${11} I/O server type.",
+    "abstract": "Workflow for the analysis of precipitation trends related to different scenarios. ${1} is ncores; ${2} is the model (e.g. CMCC-CM); ${3} is the scenario (e.g. rcp45 or rcp85); ${4} is the frequency (e.g. day or mon); ${5} is the percentile (e.g. 0.9); ${6} is the past time subset (e.g. 1976_2006); ${7} is the future time subset (e.g. 2071_2101); ${8} is the geographic subset (e.g. 30:45|0:40); ${9} is the grid of output map using the format r<lon>x<lat> (e.g. r360x180), i.e. a global regular lon/lat grid (this parameter is optional and by default the lon/lat grid of input file is adopted); ${10} import type (optional), set to '1' in case only subsetting data have to be imported (default); ${11} I/O server type (optional).",
     "exec_mode": "sync",
     "cwd": "/",
     "ncores": "${1}",
     "on_exit": "oph_delete",
-    "tasks":
-    [
-	{
+    "tasks": [
+        {
             "name": "Create Work Container",
             "operator": "oph_createcontainer",
             "arguments": [
@@ -56,11 +55,11 @@
                 "exp_dim=lat|lon",
                 "imp_dim=time",
                 "measure=pr",
-                "src_path=${2}/historical/pr_${4}_${2}_historical_r1i1p1_19760101-20051231.nc",
+                "src_path=/INDIGO/precip_trend_data/${2}/historical/${4}/pr_${4}_${2}_historical_r1i1p1.nc",
                 "compressed=no",
                 "exp_concept_level=c|c",
                 "filesystem=local",
-                "imp_concept_level=d",
+                "imp_concept_level=${4}",
                 "ndb=1",
                 "ndbms=1",
                 "nhost=1",
@@ -70,8 +69,8 @@
                 "subset_dims=time|lat|lon",
                 "subset_filter=${6}|${8}",
                 "subset_type=coord",
-		"offset=0|2|2",
-		"ioserver=${11}"
+                "offset=0|2|2",
+                "ioserver=${11}"
             ],
             "dependencies": [
                 { "task": "Import Type Selection Historical" }
@@ -93,18 +92,18 @@
                 "exp_dim=lat|lon",
                 "imp_dim=time",
                 "measure=pr",
-                "src_path=${2}/historical/pr_${4}_${2}_historical_r1i1p1_19760101-20051231.nc",
+                "src_path=/INDIGO/precip_trend_data/${2}/historical/${4}/pr_${4}_${2}_historical_r1i1p1.nc",
                 "compressed=no",
                 "exp_concept_level=c|c",
                 "filesystem=local",
-                "imp_concept_level=d",
+                "imp_concept_level=${4}",
                 "ndb=1",
                 "ndbms=1",
                 "nhost=1",
                 "import_metadata=yes",
                 "check_compliance=no",
                 "units=d",
-		"ioserver=${11}"
+                "ioserver=${11}"
             ],
             "dependencies": [
                 { "task": "Import without subsetting Historical" }
@@ -116,7 +115,7 @@
             "arguments": [
                 "subset_dims=time|lat|lon",
                 "subset_filter=${6}|${8}",
-		"offset=0|2|2"
+                "offset=0|2|2"
             ],
             "dependencies": [
                 { "task": "Import Historical Only", "type": "single" }
@@ -148,8 +147,8 @@
             "arguments": [
                 "operation=quantile",
                 "dim=time",
-		"concept_level=y",
-		"order=${5}"
+                "concept_level=y",
+                "order=${5}"
             ],
             "dependencies": [
                 { "task": "Subset JJA Historical", "type": "single" }
@@ -159,8 +158,8 @@
             "name": "Linear regression Historical",
             "operator": "oph_apply",
             "arguments": [
-            	"query=oph_gsl_fit_linear_coeff(measure)",
-		"measure_type=auto"
+                "query=oph_gsl_fit_linear_coeff(measure)",
+                "measure_type=auto"
             ],
             "dependencies": [
                 { "task": "90th percentile JJA Historical", "type": "single" }
@@ -198,11 +197,11 @@
                 "exp_dim=lat|lon",
                 "imp_dim=time",
                 "measure=pr",
-                "src_path=${2}/${3}/pr_${4}_${2}_${3}_r1i1p1_20700101-21001231.nc",
+                "src_path=/INDIGO/precip_trend_data/${2}/${3}/${4}/pr_${4}_${2}_${3}_r1i1p1.nc",
                 "compressed=no",
                 "exp_concept_level=c|c",
                 "filesystem=local",
-                "imp_concept_level=d",
+                "imp_concept_level=${4}",
                 "ndb=1",
                 "ndbms=1",
                 "nhost=1",
@@ -212,8 +211,8 @@
                 "subset_dims=time|lat|lon",
                 "subset_filter=${7}|${8}",
                 "subset_type=coord",
-		"offset=0|2|2",
-		"ioserver=${11}"
+                "offset=0|2|2",
+                "ioserver=${11}"
             ],
             "dependencies": [
                 { "task": "Import Type Selection Scenario" }
@@ -235,18 +234,18 @@
                 "exp_dim=lat|lon",
                 "imp_dim=time",
                 "measure=pr",
-                "src_path=${2}/${3}/pr_${4}_${2}_${3}_r1i1p1_20700101-21001231.nc",
+                "src_path=/INDIGO/precip_trend_data/${2}/${3}/${4}/pr_${4}_${2}_${3}_r1i1p1.nc",
                 "compressed=no",
                 "exp_concept_level=c|c",
                 "filesystem=local",
-                "imp_concept_level=d",
+                "imp_concept_level=${4}",
                 "ndb=1",
                 "ndbms=1",
                 "nhost=1",
                 "import_metadata=yes",
                 "check_compliance=no",
                 "units=d",
-		"ioserver=${11}"
+                "ioserver=${11}"
             ],
             "dependencies": [
                 { "task": "Import without subsetting Scenario" }
@@ -258,7 +257,7 @@
             "arguments": [
                 "subset_dims=time|lat|lon",
                 "subset_filter=${7}|${8}",
-		"offset=0|2|2"
+                "offset=0|2|2"
             ],
             "dependencies": [
                 { "task": "Import Scenario Only", "type": "single" }
@@ -290,8 +289,8 @@
             "arguments": [
                 "operation=quantile",
                 "dim=time",
-		"concept_level=y",
-		"order=${5}"
+                "concept_level=y",
+                "order=${5}"
             ],
             "dependencies": [
                 { "task": "Subset JJA Scenario", "type": "single" }
@@ -301,8 +300,8 @@
             "name": "Linear regression Scenario",
             "operator": "oph_apply",
             "arguments": [
-            	"query=oph_gsl_fit_linear_coeff(measure)",
-		"measure_type=auto"
+                "query=oph_gsl_fit_linear_coeff(measure)",
+                "measure_type=auto"
             ],
             "dependencies": [
                 { "task": "90th percentile JJA Scenario", "type": "single" }
@@ -312,22 +311,22 @@
             "name": "Trend differences",
             "operator": "oph_intercube",
             "arguments": [
-            	"operation=sub",
-            	"measure=precip_trend",
+                "operation=sub",
+                "measure=precip_trend",
                 "container=work"
             ],
             "dependencies": [
-		{ "task": "Create Work Container"	},
-            	{ "task": "Linear regression Scenario", "argument": "cube", "type": "single" },
-            	{ "task": "Linear regression Historical", "argument": "cube2", "type": "single" }
+                { "task": "Create Work Container"    },
+                { "task": "Linear regression Scenario", "argument": "cube", "type": "single" },
+                { "task": "Linear regression Historical", "argument": "cube2", "type": "single" }
             ]
         },
         {
             "name": "Unit change",
             "operator": "oph_apply",
             "arguments": [
-            	"query=oph_mul_scalar(measure,86400)",
-		"measure_type=auto"
+                "query=oph_mul_scalar(measure,86400)",
+                "measure_type=auto"
             ],
             "dependencies": [
                 { "task": "Trend differences", "type": "single" }
@@ -337,10 +336,10 @@
             "name": "Metadata update",
             "operator": "oph_metadata",
             "arguments": [
-            	"mode=insert",
-		"metadata_key=standard_name|long_name|units",
-		"metadata_value=precipitation_trend|Precipitation Trend|mm d-1 y-1",
-		"variable=precip_trend"
+                "mode=insert",
+                "metadata_key=standard_name|long_name|units",
+                "metadata_value=precipitation_trend|Precipitation Trend|mm d-1 y-1",
+                "variable=precip_trend"
             ],
             "dependencies": [
                 { "task": "Unit change", "type": "single" }
@@ -350,9 +349,9 @@
             "name": "Export",
             "operator": "oph_exportnc2",
             "arguments": [
-            	"force=yes",
-            	"misc=yes",
-            	"output_name=precip_trend_analysis"
+                "force=yes",
+                "output_name=precip_trend_analysis",
+                "output_path=/INDIGO/precip_trend_input/@{OPH_SESSION_CODE}/@{OPH_WORKFLOW_ID}"
             ],
             "dependencies": [
                 { "task": "Metadata update", "type": "single" }
