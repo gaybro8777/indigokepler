@@ -12,6 +12,9 @@ import ptolemy.kernel.util.NameDuplicationException;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * A Kepler actor which deletes a file or directory (recursively).
+ */
 public class FileOrDirectoryDeleter extends LimitedFiringSource {
     private final TypedIOPort pathPort;
 

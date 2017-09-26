@@ -58,11 +58,13 @@ public class SetAsyncExecMode extends LimitedFiringSource {
                     matcher.replaceFirst("\"exec_mode\" :\"async\"");
 
             /* write it in a temporary file */
-            final File file = StringUtils.isBlank(tempPath) ? File
-                    .createTempFile("SetAsyncExecMode", ".json") : File
-                                      .createTempFile("SetAsyncExecMode",
-                                                      ".json",
-                                                      new File(tempPath));
+            final File file;
+            if (StringUtils.isBlank(tempPath)) {
+                file = File.createTempFile("SetAsyncExecMode", ".json");
+            } else {
+                file = File.createTempFile("SetAsyncExecMode", ".json",
+                                           new File(tempPath));
+            }
             FileUtils.write(file, jsonAsync, Charset.defaultCharset());
 
             output.broadcast(new StringToken(file.getAbsolutePath()));
