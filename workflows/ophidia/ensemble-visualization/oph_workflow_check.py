@@ -72,6 +72,9 @@ if __name__ == "__main__":
     except (OSError, subprocess.CalledProcessError):
         sys.exit('Unable to run workflow command')
 
+    with open('debug.json', 'w') as jsonfile:
+        jsonfile.write(workflow_resp)
+
     try:
         workflow_json = json.loads(workflow_resp)
     except (ValueError, TypeError):
