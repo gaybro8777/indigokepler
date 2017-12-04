@@ -6,7 +6,7 @@
     "ncores": "1",
     "on_exit":"oph_delete",
     "tasks": [
-	{
+        {
             "name": "Delete Work Container",
             "operator": "oph_deletecontainer",
             "arguments": [
@@ -60,7 +60,7 @@
                 "nfrag=1",
                 "container=ensemble",
                 "grid=map",
-		"ioserver=${2}"
+                "ioserver=${2}"
             ],
             "dependencies": [
                 {
@@ -92,12 +92,12 @@
                 }
             ]
         },
-	{
+        {
             "name": "loop_reduce",
             "operator": "oph_for",
             "arguments": [ "key=index", "values=avg|min|max|var|std", "parallel=yes" ],
             "dependencies": [ { "task":"merging", "type": "single" } ]
-	},
+        },
         {
             "name": "reducing",
             "operator": "oph_reduce2",
@@ -116,9 +116,9 @@
             "name": "export",
             "operator": "oph_exportnc2",
             "arguments": [
-		"force=yes",
-            	"misc=yes",
-                "output_name=@{index}"
+                "force=yes",
+                "output_name=@{index}",
+                "output_path=/INDIGO/precip_trend_output/@{OPH_SESSION_CODE}/@{OPH_WORKFLOW_ID}"
             ],
             "dependencies": [
                 {
