@@ -5,7 +5,7 @@
   <parent>
     <artifactId>indigo-parent</artifactId>
     <groupId>pl.psnc.indigo</groupId>
-    <version>1.4</version>
+    <version>1.4.1</version>
   </parent>
 
   <artifactId>indigo-fg-actors</artifactId>
